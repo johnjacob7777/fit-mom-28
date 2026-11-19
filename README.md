@@ -8,12 +8,14 @@ No gym. No equipment. No guilt. Just 20 minutes a day.
 
 | Feature | Description |
 |---------|-------------|
-| Landing Page | Clean marketing page with pricing & FAQ |
-| Auth | Email + Google sign-in via Firebase |
-| Onboarding Quiz | 7 questions → personalized plan |
-| Plan Generator | 4-week workout + meal plan based on quiz answers |
-| Dashboard | Today's workout, progress tracker, water & weight log |
-| Payments | Stripe checkout (test mode) |
+| Landing Page | Clean marketing page with live phone mockup, free 20-min sample routine, pricing & FAQ |
+| Auth | Email + Google sign-in via Firebase & instant demo mode |
+| Onboarding Quiz | 7 big tappable cards → personalized 4-week plan |
+| Plan Generator | 4-week daily routines (warmup, 3 movements, cooldown) & aligned meal ideas |
+| Dashboard | Today's workout with 20-min timer, celebration animation, streak tracker, water & weight log |
+| Gentle Mode | Live toggle for tired/postpartum days with doctor safety reminders |
+| Settings | Edit quiz answers and recalculate plan parameters anytime |
+| Legal | Privacy Policy, Terms of Service, and Contact pages |
 
 > [!NOTE]
 > The plan generator uses smart templates. You can later swap it for a Gemini AI API for even more personalization.

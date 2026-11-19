@@ -1,12 +1,13 @@
 "use client";
 // =============================================================
-// CHECKOUT PAGE — Stripe payment before accessing dashboard
+// CHECKOUT PAGE — Clean theme with plum, cream & peach
 // =============================================================
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { getStripe } from "@/lib/stripe";
+import { ArrowLeft, CheckCircle2, ShieldCheck, Sparkles, Lock } from "lucide-react";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -14,7 +15,6 @@ export default function CheckoutPage() {
   const [paying, setPaying] = useState(false);
   const [error, setError] = useState("");
 
-  // Redirect logic
   useEffect(() => {
     if (!loading) {
       if (!user) {
@@ -33,7 +33,6 @@ export default function CheckoutPage() {
     setError("");
 
     try {
-      // 1. Ask our API to create a Stripe Checkout Session
       const response = await fetch("/api/create-checkout-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -49,13 +48,12 @@ export default function CheckoutPage() {
         throw new Error(data.error || "Failed to create checkout session");
       }
 
-      // 2. Redirect to Stripe's hosted checkout page
       const stripe = await getStripe();
       if (stripe) {
         await stripe.redirectToCheckout({ sessionId: data.sessionId });
       }
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Payment failed";
+      const message = err instanceof Error ? err.message : "Payment connection error";
       setError(message);
     } finally {
       setPaying(false);
@@ -64,85 +62,106 @@ export default function CheckoutPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-cream-50 flex items-center justify-center">
-        <p className="text-warm-400 animate-pulse text-lg">Loading...</p>
+      <div className="min-h-screen bg-cream flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-peach-200 border-t-plum rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <main className="min-h-screen bg-cream-50 flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md text-center">
-        {/* Header */}
-        <Link href="/" className="text-peach-500 font-extrabold text-lg tracking-widest">
-          FIT MOM 20
-        </Link>
-
-        <h1 className="text-2xl font-bold text-warm-800 mt-6 mb-2">
-          Your plan is ready! 🎉
-        </h1>
-        <p className="text-warm-500 mb-8">
-          One last step — unlock your personalized fitness plan.
-        </p>
-
-        {/* Plan summary card */}
-        <div className="bg-white rounded-3xl p-8 shadow-md border-2 border-sage-200 mb-6">
-          <p className="text-warm-500 mb-2 font-semibold">Your Fit Mom 20 Plan</p>
-          <p className="text-5xl font-extrabold text-warm-800 mb-1">
-            ₹499<span className="text-lg font-normal text-warm-400">/month</span>
+    <main className="min-h-screen bg-cream flex flex-col justify-center px-4 py-12">
+      <div className="w-full max-w-md mx-auto text-center space-y-6">
+        <div>
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-xs font-semibold text-plum/70 hover:text-plum mb-3 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" /> Back
+          </Link>
+          <div className="flex items-center justify-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-peach-200 text-plum font-heading font-bold flex items-center justify-center">
+              F
+            </div>
+            <span className="font-heading font-bold text-xl text-plum">Fit Mom 20</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-heading font-bold text-plum mt-3">
+            Your Plan Is Ready, Mama! 🌸
+          </h1>
+          <p className="text-plum/70 text-sm mt-1">
+            Unlock your personalized 4-week daily routines and meal ideas.
           </p>
-          <p className="text-warm-400 text-sm mb-6">Cancel anytime • No lock-in</p>
+        </div>
 
-          <ul className="text-left text-warm-600 space-y-2 mb-8 text-sm">
+        <div className="card-soft shadow-soft-md border-2 border-plum/20 text-left">
+          <div className="text-center pb-4 border-b border-peach-200">
+            <span className="text-xs font-bold uppercase tracking-wider text-plum/60 bg-peach-100 px-3 py-1 rounded-full border border-peach-200">
+              All-Access Membership
+            </span>
+            <p className="text-4xl font-heading font-extrabold text-plum mt-3">
+              ₹499
+              <span className="text-base font-sans font-normal text-plum/60">/month</span>
+            </p>
+            <p className="text-xs text-plum/60 mt-1">Cancel anytime • No lock-in period</p>
+          </div>
+
+          <ul className="space-y-3 text-sm text-plum/85 py-6">
             {[
-              "✅ Personalized 4-week workout plan",
-              "✅ Weekly meal ideas for your diet",
-              "✅ Daily progress & water tracking",
-              "✅ Gentle mode if you need it",
-              "✅ Fresh plan every month",
-            ].map((item) => (
-              <li key={item}>{item}</li>
+              "Personalized 20-minute daily home workouts",
+              "Gentle posture & postpartum-conscious variations",
+              "Balanced weekly meal guides (fits your diet)",
+              "Interactive daily timer & streak tracker",
+              "Water intake and optional wellness logging",
+            ].map((f) => (
+              <li key={f} className="flex items-start gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-sage-600 shrink-0 mt-0.5" />
+                <span>{f}</span>
+              </li>
             ))}
           </ul>
 
           {error && (
-            <div className="text-red-500 text-sm bg-red-50 rounded-lg p-3 mb-4 text-left">
-              <p className="font-semibold">Payment Notice:</p>
-              <p>{error}</p>
+            <div className="text-xs bg-peach-100 border border-peach-300 text-plum p-3.5 rounded-xl mb-4">
+              <p className="font-semibold mb-1">Stripe Checkout Notice:</p>
+              <p className="text-plum/70 mb-2">{error}</p>
               <button
                 type="button"
                 onClick={() => router.push("/checkout/success?session_id=demo_session_" + Date.now())}
-                className="mt-2 bg-peach-500 hover:bg-peach-600 text-white font-bold py-1.5 px-3 rounded-lg text-xs"
+                className="w-full bg-plum text-white font-semibold py-2 px-3 rounded-lg text-xs hover:bg-plum-500 transition-colors"
               >
-                Skip Stripe in Demo Mode →
+                Continue in Instant Demo Mode →
               </button>
             </div>
           )}
 
           <button
+            type="button"
             onClick={handleCheckout}
             disabled={paying}
-            className="w-full bg-sage-400 hover:bg-sage-500 text-white font-bold text-lg py-4 rounded-xl shadow-lg transition-all hover:shadow-xl disabled:opacity-50"
+            className="btn-primary w-full text-base py-3.5"
           >
-            {paying ? "Redirecting to payment..." : "Pay ₹499 & Start →"}
+            <Lock className="w-4 h-4 mr-1" />
+            {paying ? "Redirecting to Stripe..." : "Subscribe for ₹499 & Start →"}
           </button>
 
+          {/* Demo simulation shortcut */}
           <button
             type="button"
             onClick={() => router.push("/checkout/success?session_id=demo_session_" + Date.now())}
-            className="w-full mt-3 bg-peach-50 border border-peach-200 text-peach-600 hover:bg-peach-100 font-semibold text-sm py-2.5 rounded-xl transition-all"
+            className="w-full mt-3 bg-peach-50 border border-peach-200 text-plum hover:bg-peach-100 font-semibold text-xs py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5"
           >
-            ⚡ Test Payment Simulation (Demo Mode)
+            <Sparkles className="w-3.5 h-3.5" /> Test Payment Simulation (Demo Mode)
           </button>
 
-          <p className="text-warm-400 text-xs mt-4">
-            🔒 Secure payment via Stripe. We never see your card details.
-          </p>
+          <div className="bg-sage-50 border border-sage-200 rounded-xl p-3 mt-4 text-[11px] text-plum/80 flex items-start gap-2">
+            <ShieldCheck className="w-4 h-4 text-sage-600 shrink-0 mt-0.5" />
+            <span>
+              <strong>7-Day Money-Back Guarantee:</strong> Try your routines for 7 days. If you aren&apos;t completely satisfied, contact us for an immediate refund.
+            </span>
+          </div>
         </div>
 
-        <p className="text-warm-400 text-xs">
-          By subscribing, you agree that this app provides general fitness
-          guidance and is not a substitute for medical advice.
+        <p className="text-[11px] text-plum/60 leading-normal">
+          ⚕️ Fit Mom 20 provides general educational fitness guidance. Please check with your doctor before beginning any physical exercise program.
         </p>
       </div>
     </main>

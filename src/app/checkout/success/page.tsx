@@ -1,13 +1,11 @@
 "use client";
 // =============================================================
-// CHECKOUT SUCCESS — verifies payment and generates the plan
+// CHECKOUT SUCCESS — Verifies payment & finalizes plan
 // =============================================================
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { doc, updateDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import { useAuth } from "@/context/AuthContext";
-import { Suspense } from "react";
+import { CheckCircle2, Sparkles, Heart } from "lucide-react";
 
 function SuccessContent() {
   const router = useRouter();
@@ -30,7 +28,6 @@ function SuccessContent() {
         const isDemoSession = sessionId.startsWith("demo_");
 
         if (!isDemoSession) {
-          // 1. Verify payment with our API
           setStatus("Verifying your payment with Stripe...");
           const verifyRes = await fetch("/api/verify-payment", {
             method: "POST",
@@ -48,8 +45,7 @@ function SuccessContent() {
           setStatus("Demo mode active — payment verified! ✅");
         }
 
-        // 2. Generate the personalized plan
-        setStatus("Creating your personalized plan... 💪");
+        setStatus("Crafting your personalized 4-week daily routines... 🌸");
         const planRes = await fetch("/api/generate-plan", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -60,20 +56,18 @@ function SuccessContent() {
 
         const planData = await planRes.json();
 
-        // 3. Save everything
-        setStatus("Saving your plan... Almost there!");
+        setStatus("Saving your plan and preparing your dashboard...");
         await updateUserDocument({
           isPaid: true,
           plan: planData.plan,
           stripeSessionId: sessionId,
         });
 
-        // 4. Done! Go to dashboard
         setStatus("All set! Welcome to your dashboard! 🎉");
         setTimeout(() => router.push("/dashboard"), 1200);
       } catch (err) {
-        console.error("Error:", err);
-        setStatus("Something went wrong. Please try again.");
+        console.error("Error finalizing plan:", err);
+        setStatus("Something went wrong. Redirecting...");
         setTimeout(() => router.push("/checkout"), 3000);
       }
     };
@@ -84,12 +78,23 @@ function SuccessContent() {
   }, [user, userData, router, searchParams]);
 
   return (
-    <main className="min-h-screen bg-cream-50 flex items-center justify-center px-4">
-      <div className="text-center">
-        <div className="text-6xl mb-6 animate-bounce">🌸</div>
-        <h1 className="text-2xl font-bold text-warm-800 mb-4">{status}</h1>
-        <div className="flex justify-center">
-          <div className="w-12 h-12 border-4 border-sage-200 border-t-sage-500 rounded-full animate-spin" />
+    <main className="min-h-screen bg-cream flex items-center justify-center px-4">
+      <div className="card-soft max-w-md w-full text-center space-y-6 shadow-soft-md">
+        <div className="w-16 h-16 rounded-full bg-peach-100 flex items-center justify-center text-plum mx-auto">
+          <Heart className="w-8 h-8 fill-blush-200 text-plum" />
+        </div>
+
+        <div>
+          <h1 className="text-2xl font-heading font-bold text-plum mb-2">
+            {status}
+          </h1>
+          <p className="text-xs text-plum/60">
+            Setting up your 20-minute daily routine and progress tracker.
+          </p>
+        </div>
+
+        <div className="flex justify-center pt-2">
+          <div className="w-10 h-10 border-4 border-peach-200 border-t-plum rounded-full animate-spin" />
         </div>
       </div>
     </main>
@@ -100,8 +105,8 @@ export default function CheckoutSuccessPage() {
   return (
     <Suspense
       fallback={
-        <main className="min-h-screen bg-cream-50 flex items-center justify-center">
-          <p className="text-warm-400 animate-pulse text-lg">Loading...</p>
+        <main className="min-h-screen bg-cream flex items-center justify-center">
+          <div className="w-10 h-10 border-4 border-peach-200 border-t-plum rounded-full animate-spin" />
         </main>
       }
     >

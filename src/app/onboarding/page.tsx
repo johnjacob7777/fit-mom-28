@@ -1,14 +1,27 @@
 "use client";
 // =============================================================
-// ONBOARDING QUIZ — one question per screen
+// ONBOARDING QUIZ — Friendly 7-step personalized quiz
 // =============================================================
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { doc, updateDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import { useAuth } from "@/context/AuthContext";
+import {
+  ArrowLeft,
+  ArrowRight,
+  ShieldCheck,
+  Baby,
+  Clock,
+  Home,
+  Dumbbell,
+  AlertCircle,
+  Salad,
+  Egg,
+  Beef,
+  Activity,
+  Calendar,
+  Sparkles,
+} from "lucide-react";
 
-// The quiz steps
 const STEPS = [
   "age",
   "weight",
@@ -25,47 +38,61 @@ export default function OnboardingPage() {
   const router = useRouter();
   const { user, userData, loading, updateUserDocument } = useAuth();
 
-  // Quiz answers
-  const [age, setAge] = useState("");
+  // Quiz state
+  const [age, setAge] = useState("30");
   const [currentWeight, setCurrentWeight] = useState("");
   const [goalWeight, setGoalWeight] = useState("");
   const [hasBabyUnder1, setHasBabyUnder1] = useState<boolean | null>(null);
-  const [exerciseMinutes, setExerciseMinutes] = useState<number | null>(null);
-  const [exerciseLocation, setExerciseLocation] = useState("");
-  const [healthIssues, setHealthIssues] = useState<string[]>([]);
-  const [foodPreference, setFoodPreference] = useState("");
+  const [exerciseMinutes, setExerciseMinutes] = useState<number | null>(20);
+  const [exerciseLocation, setExerciseLocation] = useState("home_no_equipment");
+  const [healthIssues, setHealthIssues] = useState<string[]>(["none"]);
+  const [foodPreference, setFoodPreference] = useState("vegetarian");
 
   const [currentStep, setCurrentStep] = useState(0);
   const [saving, setSaving] = useState(false);
 
-  // Redirect if not logged in or already completed quiz
+  // Prepopulate if user already had answers (e.g. from Settings or return)
   useEffect(() => {
-    if (!loading) {
-      if (!user) {
-        router.push("/login");
-      } else if (userData?.quizCompleted) {
-        if (userData.isPaid) {
-          router.push("/dashboard");
-        } else {
-          router.push("/checkout");
-        }
-      }
+    if (userData?.quizAnswers) {
+      const q = userData.quizAnswers as any;
+      if (q.age) setAge(String(q.age));
+      if (q.currentWeight) setCurrentWeight(String(q.currentWeight));
+      if (q.goalWeight) setGoalWeight(String(q.goalWeight));
+      if (typeof q.hasBabyUnder1 === "boolean") setHasBabyUnder1(q.hasBabyUnder1);
+      if (q.exerciseMinutes) setExerciseMinutes(Number(q.exerciseMinutes));
+      if (q.exerciseLocation) setExerciseLocation(q.exerciseLocation);
+      if (Array.isArray(q.healthIssues)) setHealthIssues(q.healthIssues);
+      if (q.foodPreference) setFoodPreference(q.foodPreference);
     }
-  }, [user, userData, loading, router]);
+  }, [userData]);
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push("/login");
+    }
+  }, [user, loading, router]);
 
   const step: StepName = STEPS[currentStep];
-  const progress = ((currentStep + 1) / STEPS.length) * 100;
+  const progressPercent = ((currentStep + 1) / STEPS.length) * 100;
 
   const canGoNext = (): boolean => {
     switch (step) {
-      case "age":        return age.trim() !== "";
-      case "weight":     return true; // optional
-      case "baby":       return hasBabyUnder1 !== null;
-      case "minutes":    return exerciseMinutes !== null;
-      case "location":   return exerciseLocation !== "";
-      case "health":     return healthIssues.length > 0;
-      case "food":       return foodPreference !== "";
-      default:           return false;
+      case "age":
+        return age.trim() !== "" && Number(age) >= 16;
+      case "weight":
+        return true; // Optional
+      case "baby":
+        return hasBabyUnder1 !== null;
+      case "minutes":
+        return exerciseMinutes !== null;
+      case "location":
+        return exerciseLocation !== "";
+      case "health":
+        return healthIssues.length > 0;
+      case "food":
+        return foodPreference !== "";
+      default:
+        return false;
     }
   };
 
@@ -78,6 +105,8 @@ export default function OnboardingPage() {
   const goBack = () => {
     if (currentStep > 0) {
       setCurrentStep((s) => s - 1);
+    } else {
+      router.push("/");
     }
   };
 
@@ -85,16 +114,16 @@ export default function OnboardingPage() {
     if (issue === "none") {
       setHealthIssues(["none"]);
     } else {
-      const without = healthIssues.filter((i) => i !== "none");
-      if (without.includes(issue)) {
-        setHealthIssues(without.filter((i) => i !== issue));
+      const withoutNone = healthIssues.filter((i) => i !== "none");
+      if (withoutNone.includes(issue)) {
+        const next = withoutNone.filter((i) => i !== issue);
+        setHealthIssues(next.length > 0 ? next : ["none"]);
       } else {
-        setHealthIssues([...without, issue]);
+        setHealthIssues([...withoutNone, issue]);
       }
     }
   };
 
-  // Save all answers to Firestore
   const handleFinish = async () => {
     if (!user) return;
     setSaving(true);
@@ -115,10 +144,27 @@ export default function OnboardingPage() {
         quizAnswers,
         quizCompleted: true,
       });
-      router.push("/checkout");
+
+      if (userData?.isPaid) {
+        // Regenerate plan if coming from settings
+        await fetch("/api/generate-plan", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ quizAnswers }),
+        })
+          .then((r) => r.json())
+          .then((d) => {
+            if (d.plan) {
+              updateUserDocument({ plan: d.plan });
+            }
+          });
+        router.push("/dashboard");
+      } else {
+        router.push("/checkout");
+      }
     } catch (err) {
       console.error("Error saving quiz:", err);
-      alert("Something went wrong. Please try again.");
+      alert("Could not save answers. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -126,293 +172,481 @@ export default function OnboardingPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-cream-50 flex items-center justify-center">
-        <p className="text-warm-400 animate-pulse text-lg">Loading...</p>
+      <div className="min-h-screen bg-cream flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-4 border-peach-200 border-t-plum rounded-full animate-spin" />
+          <p className="text-plum/70 font-medium text-sm">Preparing your quiz...</p>
+        </div>
       </div>
     );
   }
 
-  // ─── Render each question ───
-  const renderStep = () => {
-    switch (step) {
-      case "age":
-        return (
-          <QuizScreen
-            emoji="🎂"
-            title="How old are you?"
-            subtitle="This helps us pick the right intensity."
-          >
-            <input
-              type="number"
-              min="16"
-              max="65"
-              value={age}
-              onChange={(e) => setAge(e.target.value)}
-              className="w-full border-2 border-warm-100 rounded-xl px-4 py-4 text-center text-2xl font-bold focus:border-sage-300 focus:outline-none"
-              placeholder="e.g. 30"
-            />
-          </QuizScreen>
-        );
-
-      case "weight":
-        return (
-          <QuizScreen
-            emoji="⚖️"
-            title="Current weight & goal"
-            subtitle="This is completely optional — skip if you prefer."
-          >
-            <div className="space-y-4">
-              <div>
-                <label className="text-warm-500 text-sm font-semibold">Current weight (kg)</label>
-                <input
-                  type="number"
-                  value={currentWeight}
-                  onChange={(e) => setCurrentWeight(e.target.value)}
-                  className="w-full border-2 border-warm-100 rounded-xl px-4 py-3 text-center text-xl focus:border-sage-300 focus:outline-none"
-                  placeholder="e.g. 65"
-                />
-              </div>
-              <div>
-                <label className="text-warm-500 text-sm font-semibold">Goal weight (kg)</label>
-                <input
-                  type="number"
-                  value={goalWeight}
-                  onChange={(e) => setGoalWeight(e.target.value)}
-                  className="w-full border-2 border-warm-100 rounded-xl px-4 py-3 text-center text-xl focus:border-sage-300 focus:outline-none"
-                  placeholder="e.g. 58"
-                />
-              </div>
-            </div>
-          </QuizScreen>
-        );
-
-      case "baby":
-        return (
-          <QuizScreen
-            emoji="👶"
-            title="Do you have a baby under 1 year old?"
-            subtitle="We'll create a gentle, postpartum-safe plan for you."
-          >
-            <div className="grid grid-cols-2 gap-4">
-              <OptionButton
-                selected={hasBabyUnder1 === true}
-                onClick={() => setHasBabyUnder1(true)}
-              >
-                Yes
-              </OptionButton>
-              <OptionButton
-                selected={hasBabyUnder1 === false}
-                onClick={() => setHasBabyUnder1(false)}
-              >
-                No
-              </OptionButton>
-            </div>
-          </QuizScreen>
-        );
-
-      case "minutes":
-        return (
-          <QuizScreen
-            emoji="⏱️"
-            title="How many minutes can you exercise daily?"
-            subtitle="Pick what feels realistic — you can always change later."
-          >
-            <div className="grid grid-cols-3 gap-4">
-              {[10, 20, 30].map((min) => (
-                <OptionButton
-                  key={min}
-                  selected={exerciseMinutes === min}
-                  onClick={() => setExerciseMinutes(min)}
-                >
-                  {min} min
-                </OptionButton>
-              ))}
-            </div>
-          </QuizScreen>
-        );
-
-      case "location":
-        return (
-          <QuizScreen
-            emoji="🏠"
-            title="Where will you exercise?"
-            subtitle="Both options work great!"
-          >
-            <div className="space-y-4">
-              <OptionButton
-                selected={exerciseLocation === "home_no_equipment"}
-                onClick={() => setExerciseLocation("home_no_equipment")}
-                wide
-              >
-                🏠 Home, with no equipment
-              </OptionButton>
-              <OptionButton
-                selected={exerciseLocation === "home_light_equipment"}
-                onClick={() => setExerciseLocation("home_light_equipment")}
-                wide
-              >
-                🏋️ Home, with light equipment
-              </OptionButton>
-            </div>
-          </QuizScreen>
-        );
-
-      case "health":
-        return (
-          <QuizScreen
-            emoji="🩺"
-            title="Any pain or health issues?"
-            subtitle="Select all that apply. We'll adjust your plan."
-          >
-            <div className="space-y-3">
-              {[
-                { value: "back_pain", label: "🔙 Back pain" },
-                { value: "knee_pain", label: "🦵 Knee pain" },
-                { value: "none", label: "✅ None" },
-                { value: "other", label: "📝 Other" },
-              ].map((option) => (
-                <OptionButton
-                  key={option.value}
-                  selected={healthIssues.includes(option.value)}
-                  onClick={() => toggleHealthIssue(option.value)}
-                  wide
-                >
-                  {option.label}
-                </OptionButton>
-              ))}
-            </div>
-          </QuizScreen>
-        );
-
-      case "food":
-        return (
-          <QuizScreen
-            emoji="🥗"
-            title="What's your food preference?"
-            subtitle="We'll suggest meal ideas that match your diet."
-          >
-            <div className="space-y-3">
-              {[
-                { value: "vegetarian", label: "🥬 Vegetarian" },
-                { value: "non_vegetarian", label: "🍗 Non-vegetarian" },
-                { value: "eggs_only", label: "🥚 Eggs only (ovo-vegetarian)" },
-              ].map((option) => (
-                <OptionButton
-                  key={option.value}
-                  selected={foodPreference === option.value}
-                  onClick={() => setFoodPreference(option.value)}
-                  wide
-                >
-                  {option.label}
-                </OptionButton>
-              ))}
-            </div>
-          </QuizScreen>
-        );
-    }
-  };
-
   return (
-    <main className="min-h-screen bg-cream-50 flex flex-col">
-      {/* Progress bar */}
-      <div className="w-full bg-peach-100 h-2">
-        <div
-          className="bg-sage-400 h-2 rounded-r-full transition-all duration-500"
-          style={{ width: `${progress}%` }}
-        />
-      </div>
-
-      {/* Step indicator */}
-      <div className="text-center pt-6 pb-2">
-        <span className="text-warm-400 text-sm font-semibold">
-          Step {currentStep + 1} of {STEPS.length}
-        </span>
-      </div>
-
-      {/* Question */}
-      <div className="flex-1 flex items-center justify-center px-4 pb-8">
-        <div className="w-full max-w-md">{renderStep()}</div>
-      </div>
-
-      {/* Navigation buttons */}
-      <div className="px-6 pb-8 max-w-md mx-auto w-full flex gap-3">
-        {currentStep > 0 && (
+    <main className="min-h-screen bg-cream text-plum flex flex-col justify-between py-6 px-4 sm:px-6">
+      {/* ─── Top Bar: Friendly reassurance & progress ─── */}
+      <div className="max-w-xl mx-auto w-full space-y-4">
+        <div className="flex items-center justify-between">
           <button
             onClick={goBack}
-            className="flex-1 border-2 border-warm-200 text-warm-600 font-bold py-3 rounded-xl hover:bg-warm-50 transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-plum/70 hover:text-plum py-1.5 px-3 rounded-xl hover:bg-peach-100 transition-colors"
           >
-            ← Back
+            <ArrowLeft className="w-4 h-4" /> Back
           </button>
-        )}
+          <span className="text-xs font-semibold uppercase tracking-wider text-plum/60 bg-peach-100 px-3 py-1 rounded-full border border-peach-200">
+            Step {currentStep + 1} of {STEPS.length}
+          </span>
+        </div>
+
+        {/* Progress Line */}
+        <div className="w-full bg-peach-200/70 h-2.5 rounded-full overflow-hidden">
+          <div
+            className="bg-plum h-full rounded-full transition-all duration-300"
+            style={{ width: `${progressPercent}%` }}
+          />
+        </div>
+
+        {/* Friendly Top line requirement */}
+        <p className="text-center text-xs sm:text-sm font-medium text-plum/70 flex items-center justify-center gap-1.5 pt-1">
+          <Sparkles className="w-4 h-4 text-plum/60" /> Let&apos;s build a plan that fits your life.
+        </p>
+      </div>
+
+      {/* ─── Question Body ─── */}
+      <div className="max-w-xl mx-auto w-full my-auto py-8">
+        <div className="card-soft shadow-soft-md animate-fade-in">
+          {/* STEP 1: AGE */}
+          {step === "age" && (
+            <div className="space-y-6 text-center">
+              <div>
+                <span className="w-12 h-12 rounded-2xl bg-peach-100 text-plum flex items-center justify-center mx-auto mb-3">
+                  <Calendar className="w-6 h-6" />
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-heading font-bold text-plum">
+                  How old are you?
+                </h2>
+                <p className="text-sm text-plum/70 mt-1">
+                  We use this to set appropriate joint warmup and pace.
+                </p>
+              </div>
+
+              <div className="max-w-xs mx-auto">
+                <input
+                  type="number"
+                  min="16"
+                  max="65"
+                  value={age}
+                  onChange={(e) => setAge(e.target.value)}
+                  className="w-full text-center text-4xl font-heading font-bold text-plum bg-cream-50 border-2 border-peach-200 rounded-2xl py-4 focus:border-plum focus:outline-none"
+                  placeholder="30"
+                />
+                <span className="text-xs text-plum/50 block mt-2">years young</span>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 2: WEIGHT (OPTIONAL) */}
+          {step === "weight" && (
+            <div className="space-y-6 text-center">
+              <div>
+                <span className="w-12 h-12 rounded-2xl bg-blush-100 text-plum flex items-center justify-center mx-auto mb-3">
+                  <Activity className="w-6 h-6" />
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-heading font-bold text-plum">
+                  Current weight & goal
+                </h2>
+                <p className="text-sm text-plum/70 mt-1">
+                  Totally optional. Feel free to skip and focus on how you feel.
+                </p>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-4 text-left">
+                <div className="bg-cream-50 p-4 rounded-2xl border border-peach-200">
+                  <label className="block text-xs font-semibold text-plum/70 mb-1.5 uppercase tracking-wider">
+                    Current Weight (kg)
+                  </label>
+                  <input
+                    type="number"
+                    value={currentWeight}
+                    onChange={(e) => setCurrentWeight(e.target.value)}
+                    className="w-full text-lg font-bold text-plum bg-white border border-peach-200 rounded-xl p-3 focus:border-plum focus:outline-none"
+                    placeholder="e.g. 64"
+                  />
+                </div>
+
+                <div className="bg-cream-50 p-4 rounded-2xl border border-peach-200">
+                  <label className="block text-xs font-semibold text-plum/70 mb-1.5 uppercase tracking-wider">
+                    Goal Weight (kg)
+                  </label>
+                  <input
+                    type="number"
+                    value={goalWeight}
+                    onChange={(e) => setGoalWeight(e.target.value)}
+                    className="w-full text-lg font-bold text-plum bg-white border border-peach-200 rounded-xl p-3 focus:border-plum focus:outline-none"
+                    placeholder="e.g. 58"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 3: BABY UNDER 1 YEAR */}
+          {step === "baby" && (
+            <div className="space-y-6 text-center">
+              <div>
+                <span className="w-12 h-12 rounded-2xl bg-peach-100 text-plum flex items-center justify-center mx-auto mb-3">
+                  <Baby className="w-6 h-6" />
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-heading font-bold text-plum">
+                  Do you have a baby under 1 year old?
+                </h2>
+                <p className="text-sm text-plum/70 mt-1">
+                  We automatically adjust for pelvic floor care and postpartum recovery.
+                </p>
+              </div>
+
+              {/* Big Tappable Cards */}
+              <div className="grid sm:grid-cols-2 gap-4">
+                <button
+                  type="button"
+                  onClick={() => setHasBabyUnder1(true)}
+                  className={`p-6 rounded-2xl border-2 text-center transition-all ${
+                    hasBabyUnder1 === true
+                      ? "border-plum bg-peach-100/70 shadow-sm"
+                      : "border-peach-200 bg-cream-50 hover:border-peach-300"
+                  }`}
+                >
+                  <span className="block text-2xl font-heading font-bold text-plum mb-1">
+                    Yes, I do
+                  </span>
+                  <span className="text-xs text-plum/70">
+                    Enable Gentle Postpartum mode
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setHasBabyUnder1(false)}
+                  className={`p-6 rounded-2xl border-2 text-center transition-all ${
+                    hasBabyUnder1 === false
+                      ? "border-plum bg-peach-100/70 shadow-sm"
+                      : "border-peach-200 bg-cream-50 hover:border-peach-300"
+                  }`}
+                >
+                  <span className="block text-2xl font-heading font-bold text-plum mb-1">
+                    No
+                  </span>
+                  <span className="text-xs text-plum/70">
+                    Older kids or general wellness
+                  </span>
+                </button>
+              </div>
+
+              {/* Doctor Reminder Requirement on Baby Question */}
+              <div className="bg-peach-50 border border-peach-200 rounded-xl p-3.5 text-xs text-plum/80 text-left flex items-start gap-2.5">
+                <ShieldCheck className="w-4 h-4 text-plum shrink-0 mt-0.5" />
+                <span>
+                  <strong>Doctor Reminder:</strong> If you are postpartum, please confirm with your obstetrician or doctor that you are cleared for physical exercise before starting.
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 4: MINUTES */}
+          {step === "minutes" && (
+            <div className="space-y-6 text-center">
+              <div>
+                <span className="w-12 h-12 rounded-2xl bg-sage-100 text-sage-600 flex items-center justify-center mx-auto mb-3">
+                  <Clock className="w-6 h-6" />
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-heading font-bold text-plum">
+                  How many minutes can you exercise daily?
+                </h2>
+                <p className="text-sm text-plum/70 mt-1">
+                  Choose what feels realistic. You can change this anytime.
+                </p>
+              </div>
+
+              {/* Big Tappable Cards */}
+              <div className="grid gap-3">
+                {[
+                  {
+                    mins: 10,
+                    label: "10 Minutes",
+                    desc: "Quick restorative movement on high-demand days",
+                  },
+                  {
+                    mins: 20,
+                    label: "20 Minutes (Recommended)",
+                    desc: "The sweet spot: full warmup, 3 exercises, and cooldown",
+                  },
+                  {
+                    mins: 30,
+                    label: "30 Minutes",
+                    desc: "Extended sets and deeper mobility",
+                  },
+                ].map((opt) => (
+                  <button
+                    key={opt.mins}
+                    type="button"
+                    onClick={() => setExerciseMinutes(opt.mins)}
+                    className={`p-4 sm:p-5 rounded-2xl border-2 text-left flex items-center justify-between transition-all ${
+                      exerciseMinutes === opt.mins
+                        ? "border-plum bg-peach-100/70 shadow-sm"
+                        : "border-peach-200 bg-cream-50 hover:border-peach-300"
+                    }`}
+                  >
+                    <div>
+                      <span className="block font-heading font-bold text-lg text-plum">
+                        {opt.label}
+                      </span>
+                      <span className="text-xs text-plum/70">{opt.desc}</span>
+                    </div>
+                    <span
+                      className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                        exerciseMinutes === opt.mins
+                          ? "border-plum bg-plum text-white"
+                          : "border-peach-300"
+                      }`}
+                    >
+                      {exerciseMinutes === opt.mins && <span className="w-2 h-2 rounded-full bg-white" />}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* STEP 5: LOCATION */}
+          {step === "location" && (
+            <div className="space-y-6 text-center">
+              <div>
+                <span className="w-12 h-12 rounded-2xl bg-peach-100 text-plum flex items-center justify-center mx-auto mb-3">
+                  <Home className="w-6 h-6" />
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-heading font-bold text-plum">
+                  Where will you exercise?
+                </h2>
+                <p className="text-sm text-plum/70 mt-1">
+                  Both options are completely customized for living rooms.
+                </p>
+              </div>
+
+              <div className="grid gap-4">
+                <button
+                  type="button"
+                  onClick={() => setExerciseLocation("home_no_equipment")}
+                  className={`p-5 rounded-2xl border-2 text-left flex items-start gap-4 transition-all ${
+                    exerciseLocation === "home_no_equipment"
+                      ? "border-plum bg-peach-100/70 shadow-sm"
+                      : "border-peach-200 bg-cream-50 hover:border-peach-300"
+                  }`}
+                >
+                  <Home className="w-6 h-6 text-plum shrink-0 mt-0.5" />
+                  <div>
+                    <span className="block font-heading font-bold text-lg text-plum">
+                      Home, with no equipment
+                    </span>
+                    <span className="text-xs text-plum/70">
+                      100% bodyweight movements. Zero gear required.
+                    </span>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setExerciseLocation("home_light_equipment")}
+                  className={`p-5 rounded-2xl border-2 text-left flex items-start gap-4 transition-all ${
+                    exerciseLocation === "home_light_equipment"
+                      ? "border-plum bg-peach-100/70 shadow-sm"
+                      : "border-peach-200 bg-cream-50 hover:border-peach-300"
+                  }`}
+                >
+                  <Dumbbell className="w-6 h-6 text-plum shrink-0 mt-0.5" />
+                  <div>
+                    <span className="block font-heading font-bold text-lg text-plum">
+                      Home, with light equipment
+                    </span>
+                    <span className="text-xs text-plum/70">
+                      I have light dumbbells or a resistance band available.
+                    </span>
+                  </div>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 6: PAIN / HEALTH ISSUES */}
+          {step === "health" && (
+            <div className="space-y-6 text-center">
+              <div>
+                <span className="w-12 h-12 rounded-2xl bg-blush-100 text-plum flex items-center justify-center mx-auto mb-3">
+                  <AlertCircle className="w-6 h-6" />
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-heading font-bold text-plum">
+                  Any pain or health considerations?
+                </h2>
+                <p className="text-sm text-plum/70 mt-1">
+                  Select all that apply. We filter out aggravating movements.
+                </p>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-3 text-left">
+                {[
+                  { id: "back_pain", label: "Lower Back Pain", desc: "Filters out crunches & heavy spinal loads" },
+                  { id: "knee_pain", label: "Knee Discomfort", desc: "Filters out deep lunges & jumping" },
+                  { id: "other", label: "Other Sensitivity", desc: "Prioritizes gentle floor routines" },
+                  { id: "none", label: "None / Feeling Good", desc: "Standard balanced movements" },
+                ].map((item) => {
+                  const isSelected = healthIssues.includes(item.id);
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => toggleHealthIssue(item.id)}
+                      className={`p-4 rounded-2xl border-2 transition-all ${
+                        isSelected
+                          ? "border-plum bg-peach-100/70 shadow-sm"
+                          : "border-peach-200 bg-cream-50 hover:border-peach-300"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="font-heading font-bold text-base text-plum">
+                          {item.label}
+                        </span>
+                        <span
+                          className={`w-5 h-5 rounded-md border flex items-center justify-center text-xs font-bold ${
+                            isSelected
+                              ? "border-plum bg-plum text-white"
+                              : "border-peach-300"
+                          }`}
+                        >
+                          {isSelected && "✓"}
+                        </span>
+                      </div>
+                      <span className="text-[11px] text-plum/70 block">
+                        {item.desc}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Doctor Reminder Requirement on Pain Question */}
+              <div className="bg-peach-50 border border-peach-200 rounded-xl p-3.5 text-xs text-plum/80 text-left flex items-start gap-2.5">
+                <ShieldCheck className="w-4 h-4 text-plum shrink-0 mt-0.5" />
+                <span>
+                  <strong>Doctor Reminder:</strong> If you experience chronic or sharp back or knee pain, please consult a physiotherapist or doctor to ensure physical exercise is safe for you.
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 7: FOOD PREFERENCE */}
+          {step === "food" && (
+            <div className="space-y-6 text-center">
+              <div>
+                <span className="w-12 h-12 rounded-2xl bg-sage-100 text-sage-600 flex items-center justify-center mx-auto mb-3">
+                  <Salad className="w-6 h-6" />
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-heading font-bold text-plum">
+                  What is your dietary preference?
+                </h2>
+                <p className="text-sm text-plum/70 mt-1">
+                  We suggest simple, wholesome weekly meal ideas that match.
+                </p>
+              </div>
+
+              <div className="grid gap-3">
+                {[
+                  {
+                    id: "vegetarian",
+                    label: "Vegetarian",
+                    desc: "Dal, khichdi, paneer, sprouts, seasonal sabzis, oats",
+                    icon: Salad,
+                  },
+                  {
+                    id: "non_vegetarian",
+                    label: "Non-Vegetarian",
+                    desc: "Lean chicken, fish, eggs, nourishing soups, and veggies",
+                    icon: Beef,
+                  },
+                  {
+                    id: "eggs_only",
+                    label: "Eggs Only (Ovo-Vegetarian)",
+                    desc: "Wholesome egg bhurji, omelettes, lentils, and fresh produce",
+                    icon: Egg,
+                  },
+                ].map((diet) => {
+                  const Icon = diet.icon;
+                  const isSelected = foodPreference === diet.id;
+                  return (
+                    <button
+                      key={diet.id}
+                      type="button"
+                      onClick={() => setFoodPreference(diet.id)}
+                      className={`p-4 sm:p-5 rounded-2xl border-2 text-left flex items-center gap-4 transition-all ${
+                        isSelected
+                          ? "border-plum bg-peach-100/70 shadow-sm"
+                          : "border-peach-200 bg-cream-50 hover:border-peach-300"
+                      }`}
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-white border border-peach-200 flex items-center justify-center text-plum shrink-0">
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      <div className="flex-1">
+                        <span className="block font-heading font-bold text-base text-plum">
+                          {diet.label}
+                        </span>
+                        <span className="text-xs text-plum/70">{diet.desc}</span>
+                      </div>
+                      <span
+                        className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                          isSelected
+                            ? "border-plum bg-plum text-white"
+                            : "border-peach-300"
+                        }`}
+                      >
+                        {isSelected && <span className="w-2 h-2 rounded-full bg-white" />}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ─── Bottom Actions ─── */}
+      <div className="max-w-xl mx-auto w-full pt-4 flex items-center gap-3">
+        <button
+          type="button"
+          onClick={goBack}
+          className="btn-secondary flex-1"
+        >
+          <ArrowLeft className="w-4 h-4 mr-1" /> Back
+        </button>
 
         {currentStep < STEPS.length - 1 ? (
           <button
+            type="button"
             onClick={goNext}
             disabled={!canGoNext()}
-            className="flex-1 bg-sage-400 hover:bg-sage-500 text-white font-bold py-3 rounded-xl shadow transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            className="btn-primary flex-1 disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            Next →
+            Next Step <ArrowRight className="w-4 h-4 ml-1" />
           </button>
         ) : (
           <button
+            type="button"
             onClick={handleFinish}
             disabled={!canGoNext() || saving}
-            className="flex-1 bg-sage-400 hover:bg-sage-500 text-white font-bold py-3 rounded-xl shadow transition-all disabled:opacity-40"
+            className="btn-primary flex-1 disabled:opacity-40"
           >
-            {saving ? "Saving..." : "Finish & Continue →"}
+            {saving ? "Creating Your Plan..." : "Generate My Plan →"}
           </button>
         )}
       </div>
     </main>
-  );
-}
-
-// ─── Reusable components ─────────────────────────────────────
-
-function QuizScreen({
-  emoji,
-  title,
-  subtitle,
-  children,
-}: {
-  emoji: string;
-  title: string;
-  subtitle: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="text-center">
-      <div className="text-5xl mb-4">{emoji}</div>
-      <h2 className="text-xl md:text-2xl font-bold text-warm-800 mb-2">{title}</h2>
-      <p className="text-warm-500 mb-8">{subtitle}</p>
-      {children}
-    </div>
-  );
-}
-
-function OptionButton({
-  selected,
-  onClick,
-  children,
-  wide = false,
-}: {
-  selected: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-  wide?: boolean;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={`${
-        wide ? "w-full" : ""
-      } border-2 rounded-xl px-6 py-4 font-semibold text-lg transition-all ${
-        selected
-          ? "border-sage-400 bg-sage-50 text-sage-600"
-          : "border-warm-100 text-warm-600 hover:border-warm-200"
-      }`}
-    >
-      {children}
-    </button>
   );
 }

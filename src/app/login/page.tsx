@@ -1,6 +1,6 @@
 "use client";
 // =============================================================
-// LOGIN PAGE — for returning users
+// LOGIN PAGE — Clean theme with deep plum, cream & peach
 // =============================================================
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -12,6 +12,7 @@ import {
 import { doc, getDoc } from "firebase/firestore";
 import { auth, googleProvider, db } from "@/lib/firebase";
 import { useAuth } from "@/context/AuthContext";
+import { ArrowLeft, Sparkles } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -21,13 +22,11 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Quick launch in Demo Mode (directly to Dashboard)
   const handleStartDemo = () => {
     startDemoSession("Mama", email || "mom@example.com", true);
     router.push("/dashboard");
   };
 
-  // After login, send user to the right page
   const redirectUser = async (uid: string) => {
     const docRef = doc(db, "users", uid);
     const docSnap = await getDoc(docRef);
@@ -74,38 +73,51 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen bg-cream-50 flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <Link href="/" className="text-peach-500 font-extrabold text-lg tracking-widest">
-            FIT MOM 20
+    <main className="min-h-screen bg-cream flex flex-col justify-center px-4 py-12">
+      <div className="w-full max-w-md mx-auto">
+        {/* Back Link & Brand */}
+        <div className="mb-6 text-center">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-sm text-plum/70 hover:text-plum font-medium mb-3 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" /> Back to Home
           </Link>
-          <h1 className="text-2xl font-bold text-warm-800 mt-4">Welcome back!</h1>
-          <p className="text-warm-500 mt-1">Log in to continue your plan</p>
+          <div className="flex items-center justify-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-peach-200 text-plum font-heading font-bold flex items-center justify-center">
+              F
+            </div>
+            <span className="font-heading font-bold text-xl text-plum">Fit Mom 20</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-heading font-bold text-plum mt-3">
+            Welcome Back, Mama
+          </h1>
+          <p className="text-plum/70 text-sm mt-1">
+            Log in to continue today&apos;s 20-minute movement.
+          </p>
         </div>
 
-        {/* Demo Mode Quick Start Banner */}
-        <div className="mb-4 bg-peach-100 border border-peach-300 rounded-2xl p-4 text-center shadow-sm">
-          <p className="text-sm font-semibold text-warm-700 mb-2">
-            🚀 Want to preview without logging in?
-          </p>
+        {/* Demo Mode Quick Access */}
+        <div className="mb-4 bg-peach-100/70 border border-peach-200 rounded-2xl p-4 text-center">
+          <div className="flex items-center justify-center gap-2 text-xs font-semibold uppercase tracking-wider text-plum mb-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-plum" /> Quick Test
+          </div>
           <button
             type="button"
             onClick={handleStartDemo}
-            className="w-full bg-peach-500 hover:bg-peach-600 text-white font-bold py-2.5 px-4 rounded-xl text-sm transition-all shadow"
+            className="w-full bg-plum text-white font-medium py-2.5 px-4 rounded-xl text-sm hover:bg-plum-500 transition-all shadow-xs"
           >
-            Open Demo Dashboard →
+            Open Demo Dashboard Instantly →
           </button>
         </div>
 
         {/* Card */}
-        <div className="bg-white rounded-3xl p-8 shadow-md">
+        <div className="card-soft shadow-soft-md">
           {/* Google sign-in */}
           <button
             onClick={handleGoogleLogin}
             disabled={loading}
-            className="w-full flex items-center justify-center gap-3 border-2 border-warm-100 rounded-xl px-4 py-3 font-semibold text-warm-700 hover:bg-warm-50 transition-colors disabled:opacity-50"
+            className="w-full flex items-center justify-center gap-3 border-2 border-peach-200/80 rounded-2xl px-4 py-3.5 font-medium text-plum hover:bg-peach-50 transition-colors disabled:opacity-50 text-base"
           >
             <svg width="20" height="20" viewBox="0 0 48 48">
               <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
@@ -118,28 +130,28 @@ export default function LoginPage() {
 
           {/* Divider */}
           <div className="flex items-center gap-4 my-6">
-            <div className="flex-1 h-px bg-warm-100" />
-            <span className="text-warm-400 text-sm">or</span>
-            <div className="flex-1 h-px bg-warm-100" />
+            <div className="flex-1 h-px bg-peach-200" />
+            <span className="text-plum/50 text-xs uppercase tracking-wider">or email</span>
+            <div className="flex-1 h-px bg-peach-200" />
           </div>
 
           {/* Email form */}
           <form onSubmit={handleEmailLogin} className="space-y-4">
             <div>
-              <label className="block text-warm-600 text-sm font-semibold mb-1">
-                Email
+              <label className="block text-plum font-medium text-sm mb-1.5">
+                Email address
               </label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full border-2 border-warm-100 rounded-xl px-4 py-3 focus:border-sage-300 focus:outline-none transition-colors"
+                className="w-full border-2 border-peach-200 rounded-2xl px-4 py-3.5 focus:border-plum focus:outline-none transition-colors text-base text-plum bg-cream-50"
                 placeholder="you@example.com"
               />
             </div>
             <div>
-              <label className="block text-warm-600 text-sm font-semibold mb-1">
+              <label className="block text-plum font-medium text-sm mb-1.5">
                 Password
               </label>
               <input
@@ -147,21 +159,21 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full border-2 border-warm-100 rounded-xl px-4 py-3 focus:border-sage-300 focus:outline-none transition-colors"
+                className="w-full border-2 border-peach-200 rounded-2xl px-4 py-3.5 focus:border-plum focus:outline-none transition-colors text-base text-plum bg-cream-50"
                 placeholder="Your password"
               />
             </div>
 
             {error && (
-              <div className="text-red-600 text-sm bg-red-50 rounded-xl p-4 border border-red-200">
-                <p className="font-semibold mb-1">Firebase Error:</p>
-                <p className="mb-3">{error}</p>
+              <div className="text-red-700 text-sm bg-red-50 rounded-2xl p-4 border border-red-200">
+                <p className="font-semibold mb-1">Notice:</p>
+                <p className="text-xs">{error}</p>
                 <button
                   type="button"
                   onClick={handleStartDemo}
-                  className="bg-red-600 hover:bg-red-700 text-white font-semibold py-1.5 px-3 rounded-lg text-xs"
+                  className="mt-2 text-xs font-semibold text-plum underline"
                 >
-                  Switch to Demo Mode instead →
+                  Switch to instant demo mode instead →
                 </button>
               </div>
             )}
@@ -169,18 +181,18 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-sage-400 hover:bg-sage-500 text-white font-bold py-3 rounded-xl shadow transition-all disabled:opacity-50"
+              className="btn-primary w-full text-base py-3.5"
             >
-              {loading ? "Logging in..." : "Log In"}
+              {loading ? "Logging in..." : "Log In to My Dashboard →"}
             </button>
           </form>
         </div>
 
         {/* Signup link */}
-        <p className="text-center text-warm-500 mt-6">
+        <p className="text-center text-plum/70 text-sm mt-6">
           Don&apos;t have an account?{" "}
-          <Link href="/signup" className="text-sage-500 font-semibold hover:underline">
-            Sign up
+          <Link href="/signup" className="text-plum font-bold hover:underline">
+            Sign up here
           </Link>
         </p>
       </div>

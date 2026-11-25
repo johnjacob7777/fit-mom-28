@@ -19,16 +19,22 @@ export interface UserData {
   displayName: string;
   quizCompleted: boolean;
   isPaid: boolean;
+  subscriptionStatus?: "active" | "paused" | "cancelled";
   quizAnswers?: Record<string, unknown>;
   plan?: Record<string, unknown>;
   progress?: {
     workoutsCompleted: Record<string, boolean>;
     waterIntake: Record<string, number>;
+    waterGoal?: number;
     weightLog: Record<string, number>;
     moodWins?: Record<string, MoodWinEntry>;
     dailyMode?: Record<string, "standard" | "gentle" | "posture" | "express">;
     groceryChecked?: Record<string, boolean>;
+    customGroceries?: string[];
     swappedExercises?: Record<string, Record<string, Exercise>>;
+    swappedMeals?: Record<string, Record<string, string>>;
+    completedMoves?: Record<string, Record<string, boolean>>;
+    planDaysCompleted?: Record<string, boolean>;
   };
 }
 

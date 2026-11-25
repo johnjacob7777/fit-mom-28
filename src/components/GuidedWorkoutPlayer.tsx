@@ -7,6 +7,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Exercise, WorkoutDay, enrichExercise } from "@/lib/planGenerator";
 import ExerciseDemoDisplay from "@/components/ExerciseDemoDisplay";
+import BreathingPacer from "@/components/BreathingPacer";
 import {
   Play,
   Pause,
@@ -503,12 +504,17 @@ export default function GuidedWorkoutPlayer({
                 </div>
               </div>
 
-              {/* Exercise Video Demonstration */}
-              <ExerciseDemoDisplay
-                exerciseName={currentStep.title}
-                isPlaying={isRunning}
-                compact={compact}
-              />
+              {/* Guided Video Demonstration OR Interactive 4-6 Breathing Pacer */}
+              {currentStep.phase === "Breathe & Sip" ||
+              currentStep.title.toLowerCase().includes("deep breathing") ? (
+                <BreathingPacer controlledActive={isRunning} compact={compact} />
+              ) : (
+                <ExerciseDemoDisplay
+                  exerciseName={currentStep.title}
+                  isPlaying={isRunning}
+                  compact={compact}
+                />
+              )}
 
               {/* Form Cues & Breathing Tip */}
               <div className="grid sm:grid-cols-2 gap-3 text-xs">

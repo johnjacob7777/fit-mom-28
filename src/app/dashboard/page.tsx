@@ -18,6 +18,7 @@ import {
 } from "@/lib/planGenerator";
 import GuidedWorkoutPlayer from "@/components/GuidedWorkoutPlayer";
 import ExerciseDemoDisplay from "@/components/ExerciseDemoDisplay";
+import BreathingPacer from "@/components/BreathingPacer";
 import MealsAndGroceryTab from "@/components/MealsAndGroceryTab";
 import ProgressAndWinsTab from "@/components/ProgressAndWinsTab";
 import {
@@ -44,6 +45,8 @@ import {
   LayoutList,
   ShoppingBasket,
   Video,
+  CheckSquare,
+  Square,
 } from "lucide-react";
 
 type DashboardTab = "today" | "roadmap" | "meals" | "progress";
@@ -137,30 +140,23 @@ export default function DashboardPage() {
     }
   }, [userData, updateUserDocument]);
 
-  // Plan day calculation
+  // Natural plan day based on completed sessions prior to today (never punishes missed calendar days!)
   const getPlanDay = useCallback((): number => {
     if (!userData?.plan) return 1;
     const progress = userData.progress?.workoutsCompleted || {};
-    const dates = Object.keys(progress).sort();
-    if (dates.length === 0) return 1;
-
-    const parts = dates[0].split("-").map(Number);
-    const startDate =
-      parts.length === 3
-        ? new Date(parts[0], parts[1] - 1, parts[2])
-        : new Date(dates[0]);
-    const now = new Date();
-    const diffDays = Math.floor(
-      (now.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
-    );
-    return (Math.max(0, diffDays) % 28) + 1;
-  }, [userData]);
+    const priorDoneCount = Object.entries(progress).filter(
+      ([dateStr, done]) => Boolean(done) && dateStr !== today
+    ).length;
+    return (priorDoneCount % 28) + 1;
+  }, [userData, today]);
 
   const naturalPlanDay = getPlanDay();
   const activeDayNumber = previewDayNumber ?? naturalPlanDay;
   const plan = userData?.plan as Plan | undefined;
   const quizMinutes = Number((userData?.quizAnswers as any)?.exerciseMinutes) || 20;
   const foodPreference = String((userData?.quizAnswers as any)?.foodPreference || "vegetarian");
+  const isBreastfeeding = Boolean((userData?.quizAnswers as any)?.isBreastfeeding);
+  const waterGoal = userData?.progress?.waterGoal || (isBreastfeeding ? 11 : 8);
   const healthIssues: string[] = Array.isArray((userData?.quizAnswers as any)?.healthIssues)
     ? (userData?.quizAnswers as any).healthIssues
     : ["none"];
@@ -206,12 +202,24 @@ export default function DashboardPage() {
   const effectiveMinutes =
     dailyMode === "express" ? 5 : dailyMode === "posture" ? 12 : quizMinutes;
 
-  const todayMeal = plan?.meals?.[(activeDayNumber - 1) % 28];
+  const baseMeal = plan?.meals?.[(activeDayNumber - 1) % 28];
+  const dayMealSwaps = userData?.progress?.swappedMeals?.[`day_${activeDayNumber}`] || {};
+  const todayMeal = baseMeal
+    ? {
+        breakfast: dayMealSwaps.breakfast || baseMeal.breakfast,
+        lunch: dayMealSwaps.lunch || baseMeal.lunch,
+        dinner: dayMealSwaps.dinner || baseMeal.dinner,
+        snack: dayMealSwaps.snack || baseMeal.snack,
+      }
+    : undefined;
   const todayMessage =
     plan?.motivationalMessages?.[(activeDayNumber - 1) % 28] ||
     "You showed up today — that's already a win for you and your family! 🌸";
 
   const isWorkoutDone = !!userData?.progress?.workoutsCompleted?.[today];
+  const todayCompletedMoves = userData?.progress?.completedMoves?.[today] || {};
+  const todayMoodWin = userData?.progress?.moodWins?.[today];
+  const planDaysCompleted = userData?.progress?.planDaysCompleted || {};
 
   // Handlers
   const handleDailyModeChange = async (nextMode: DailyMode) => {
@@ -243,6 +251,16 @@ export default function DashboardPage() {
     }
     await updateUserDocument({
       [`progress.workoutsCompleted.${today}`]: newVal,
+      [`progress.planDaysCompleted.day_${activeDayNumber}`]: newVal,
+    });
+  };
+
+  const handleToggleMoveDone = async (moveIdx: number) => {
+    if (!user) return;
+    const moveKey = `ex_${moveIdx}`;
+    const nextVal = !todayCompletedMoves[moveKey];
+    await updateUserDocument({
+      [`progress.completedMoves.${today}.${moveKey}`]: nextVal,
     });
   };
 
@@ -257,10 +275,17 @@ export default function DashboardPage() {
 
   const handleAdjustWater = async (delta: number) => {
     if (!user) return;
-    const nextVal = Math.max(0, Math.min(8, waterGlasses + delta));
+    const nextVal = Math.max(0, Math.min(waterGoal, waterGlasses + delta));
     setWaterGlasses(nextVal);
     await updateUserDocument({
       [`progress.waterIntake.${today}`]: nextVal,
+    });
+  };
+
+  const handleSetWaterGoal = async (nextGoal: number) => {
+    if (!user) return;
+    await updateUserDocument({
+      "progress.waterGoal": nextGoal,
     });
   };
 
@@ -268,6 +293,24 @@ export default function DashboardPage() {
     if (!user) return;
     await updateUserDocument({
       [`progress.groceryChecked.${slug}`]: checked,
+    });
+  };
+
+  const handleSwapMeal = async (
+    targetDayIdxZero: number,
+    slot: "breakfast" | "lunch" | "dinner" | "snack",
+    nextMeal: string
+  ) => {
+    if (!user) return;
+    await updateUserDocument({
+      [`progress.swappedMeals.day_${targetDayIdxZero + 1}.${slot}`]: nextMeal,
+    });
+  };
+
+  const handleUpdateCustomGroceries = async (items: string[]) => {
+    if (!user) return;
+    await updateUserDocument({
+      "progress.customGroceries": items,
     });
   };
 
@@ -465,6 +508,40 @@ export default function DashboardPage() {
               </p>
             </div>
 
+            {/* Today's Wellness Snapshot Strip */}
+            <div className="grid grid-cols-3 gap-2.5 text-center">
+              <div className="bg-white rounded-2xl p-3 border border-peach-100 shadow-xs">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-plum/55 block">
+                  Movement
+                </span>
+                <span className="text-xs sm:text-sm font-bold text-plum mt-0.5 block">
+                  {isWorkoutDone
+                    ? "Completed ✓"
+                    : `${Object.values(todayCompletedMoves).filter(Boolean).length}/${effectiveWorkout.exercises.length || 0} Moves`}
+                </span>
+              </div>
+              <div className="bg-white rounded-2xl p-3 border border-peach-100 shadow-xs">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-plum/55 block">
+                  Hydration
+                </span>
+                <span className="text-xs sm:text-sm font-bold text-plum mt-0.5 block">
+                  {waterGlasses} / {waterGoal} glasses
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveTab("progress")}
+                className="bg-white rounded-2xl p-3 border border-peach-100 shadow-xs hover:border-peach-300 transition-colors"
+              >
+                <span className="text-[10px] font-bold uppercase tracking-wider text-plum/55 block">
+                  Today&apos;s Win
+                </span>
+                <span className="text-xs sm:text-sm font-bold text-plum mt-0.5 block truncate">
+                  {todayMoodWin ? todayMoodWin.mood : "+ Log Win"}
+                </span>
+              </button>
+            </div>
+
             {/* ─── LIVE ENERGY & BODY CHECK-IN ADAPTOR ─── */}
             <div className="card-soft p-4 sm:p-5 space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
@@ -642,6 +719,11 @@ export default function DashboardPage() {
                       })}
                     </div>
                   )}
+
+                  {/* Guided Breathing Pacer on Rest Day */}
+                  <div className="max-w-lg mx-auto text-left pt-2">
+                    <BreathingPacer />
+                  </div>
                 </div>
               ) : (
                 <>
@@ -723,12 +805,31 @@ export default function DashboardPage() {
                         {effectiveWorkout.exercises.map((ex, i) => {
                           const key = `main-${i}`;
                           const isOpen = expandedExerciseKey === key;
+                          const isMoveChecked = !!todayCompletedMoves[`ex_${i}`];
                           return (
                             <div
                               key={key}
-                              className="bg-cream-50 rounded-xl border border-peach-200/70 overflow-hidden"
+                              className={`rounded-xl border overflow-hidden transition-colors ${
+                                isMoveChecked
+                                  ? "bg-sage-50/70 border-sage-200"
+                                  : "bg-cream-50 border-peach-200/70"
+                              }`}
                             >
                               <div className="p-3.5 flex items-center justify-between gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => handleToggleMoveDone(i)}
+                                  className="shrink-0 p-1 text-plum/60 hover:text-plum"
+                                  title={isMoveChecked ? "Unmark movement" : "Mark movement done"}
+                                  aria-label={`Mark ${ex.name} done`}
+                                >
+                                  {isMoveChecked ? (
+                                    <CheckSquare className="w-5 h-5 text-sage-600" />
+                                  ) : (
+                                    <Square className="w-5 h-5 text-peach-300" />
+                                  )}
+                                </button>
+
                                 <button
                                   type="button"
                                   onClick={() =>
@@ -737,7 +838,11 @@ export default function DashboardPage() {
                                   className="text-left flex-1"
                                 >
                                   <div className="flex flex-wrap items-center gap-2">
-                                    <span className="font-semibold text-sm text-plum">
+                                    <span
+                                      className={`font-semibold text-sm ${
+                                        isMoveChecked ? "line-through text-plum/60" : "text-plum"
+                                      }`}
+                                    >
                                       {i + 1}. {ex.name}
                                     </span>
                                     {ex.focus && (
@@ -925,17 +1030,38 @@ export default function DashboardPage() {
 
             {/* ───────── WATER INTAKE TRACKER ───────── */}
             <div className="card-soft">
-              <div className="flex items-center justify-between mb-3">
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                 <div>
                   <h2 className="font-heading font-bold text-lg text-plum flex items-center gap-2">
                     <Droplets className="w-4 h-4 text-sage-500" /> Daily Water Intake
                   </h2>
                   <p className="text-xs text-plum/60">
-                    Target: 8 glasses (approx. 2 liters) • {waterGlasses} completed
+                    Goal: {waterGoal} glasses {waterGoal >= 11 ? "(Nursing Goal)" : "(~2 Liters)"} • {waterGlasses} completed
                   </p>
                 </div>
 
                 <div className="flex items-center gap-2">
+                  <div className="inline-flex bg-cream-50 p-0.5 rounded-lg border border-peach-200 text-[10px] font-bold">
+                    <button
+                      type="button"
+                      onClick={() => handleSetWaterGoal(8)}
+                      className={`px-2 py-1 rounded-md transition-colors ${
+                        waterGoal === 8 ? "bg-plum text-white" : "text-plum/65"
+                      }`}
+                    >
+                      8 Goal
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleSetWaterGoal(11)}
+                      className={`px-2 py-1 rounded-md transition-colors ${
+                        waterGoal === 11 ? "bg-plum text-white" : "text-plum/65"
+                      }`}
+                    >
+                      11 Nursing
+                    </button>
+                  </div>
+
                   <button
                     type="button"
                     onClick={() => handleAdjustWater(-1)}
@@ -955,15 +1081,15 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-8 gap-1.5 sm:gap-3 py-2">
-                {Array.from({ length: 8 }).map((_, idx) => {
+              <div className="grid grid-cols-4 sm:grid-cols-8 md:grid-cols-11 gap-2 py-2">
+                {Array.from({ length: waterGoal }).map((_, idx) => {
                   const isFilled = idx < waterGlasses;
                   return (
                     <button
                       key={idx}
                       type="button"
                       onClick={() => handleToggleGlass(idx)}
-                      className={`h-12 rounded-xl flex items-center justify-center transition-all ${
+                      className={`h-11 rounded-xl flex items-center justify-center transition-all ${
                         isFilled
                           ? "bg-sage-200 border-2 border-sage-400 text-sage-800 scale-100"
                           : "bg-cream-50 border border-peach-200 text-plum/20 hover:border-peach-300"
@@ -971,7 +1097,7 @@ export default function DashboardPage() {
                       title={`Glass ${idx + 1}: ${isFilled ? "Filled" : "Tap to fill"}`}
                     >
                       <Droplets
-                        className={`w-5 h-5 ${isFilled ? "fill-sage-500 text-sage-600" : ""}`}
+                        className={`w-4 h-4 ${isFilled ? "fill-sage-500 text-sage-600" : ""}`}
                       />
                     </button>
                   );
@@ -979,9 +1105,9 @@ export default function DashboardPage() {
               </div>
 
               <p className="text-[11px] text-plum/55 text-center pt-1">
-                {waterGlasses >= 8
+                {waterGlasses >= waterGoal
                   ? "🌟 Wonderful hydration today, Mama!"
-                  : `${8 - waterGlasses} more glasses to reach today's hydration target.`}
+                  : `${waterGoal - waterGlasses} more glasses to reach today's hydration goal.`}
               </p>
             </div>
 
@@ -1069,11 +1195,14 @@ export default function DashboardPage() {
               <div className="space-y-3">
                 {roadmapWeekDays.map((wDay) => {
                   const isTodayNatural = wDay.day === naturalPlanDay;
+                  const isDayFinished = !!planDaysCompleted[`day_${wDay.day}`];
                   return (
                     <div
                       key={wDay.day}
                       className={`p-4 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
-                        isTodayNatural
+                        isDayFinished
+                          ? "bg-sage-50/75 border-sage-200"
+                          : isTodayNatural
                           ? "bg-peach-50/90 border-plum/40 shadow-xs"
                           : "bg-cream-50 border-peach-100"
                       }`}
@@ -1083,7 +1212,12 @@ export default function DashboardPage() {
                           <span className="text-xs font-extrabold text-plum bg-white px-2.5 py-0.5 rounded-lg border border-peach-200">
                             Day {wDay.day} • {wDay.dayOfWeek}
                           </span>
-                          {isTodayNatural && (
+                          {isDayFinished && (
+                            <span className="text-[10px] font-bold uppercase tracking-wider bg-sage-500 text-white px-2 py-0.5 rounded-full">
+                              Done ✓
+                            </span>
+                          )}
+                          {isTodayNatural && !isDayFinished && (
                             <span className="text-[10px] font-bold uppercase tracking-wider bg-plum text-white px-2 py-0.5 rounded-full">
                               Your Current Day
                             </span>
@@ -1126,8 +1260,13 @@ export default function DashboardPage() {
             meals={plan.meals}
             currentDayIndex={activeDayNumber - 1}
             foodPreference={foodPreference}
+            isBreastfeeding={isBreastfeeding}
+            swappedMeals={userData?.progress?.swappedMeals || {}}
+            customGroceries={userData?.progress?.customGroceries || []}
             groceryChecked={userData?.progress?.groceryChecked || {}}
             onToggleGroceryItem={handleToggleGroceryItem}
+            onSwapMeal={handleSwapMeal}
+            onUpdateCustomGroceries={handleUpdateCustomGroceries}
           />
         )}
 
@@ -1139,6 +1278,7 @@ export default function DashboardPage() {
             today={today}
             workoutsCompleted={userData?.progress?.workoutsCompleted || {}}
             waterIntake={userData?.progress?.waterIntake || {}}
+            waterGoal={waterGoal}
             weightLog={userData?.progress?.weightLog || {}}
             moodWins={userData?.progress?.moodWins || {}}
             onSaveMoodWin={handleSaveMoodWin}

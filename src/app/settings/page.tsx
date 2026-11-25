@@ -20,11 +20,15 @@ import {
   Egg,
   Beef,
   Baby,
+  Droplets,
+  Calendar,
+  CreditCard,
+  PauseCircle,
 } from "lucide-react";
 
 export default function SettingsPage() {
   const router = useRouter();
-  const { user, userData, loading, updateUserDocument, logoutUser } = useAuth();
+  const { user, userData, loading, isDemoMode, updateUserDocument, logoutUser } = useAuth();
 
   const [age, setAge] = useState<string>("30");
   const [currentWeight, setCurrentWeight] = useState<string>("");
@@ -32,10 +36,14 @@ export default function SettingsPage() {
   const [exerciseMinutes, setExerciseMinutes] = useState<number>(20);
   const [exerciseLocation, setExerciseLocation] = useState<string>("home_no_equipment");
   const [hasBabyUnder1, setHasBabyUnder1] = useState<boolean>(false);
+  const [isBreastfeeding, setIsBreastfeeding] = useState<boolean>(false);
+  const [restDay, setRestDay] = useState<string>("Sunday");
   const [healthIssues, setHealthIssues] = useState<string[]>(["none"]);
   const [foodPreference, setFoodPreference] = useState<string>("vegetarian");
 
   const [saving, setSaving] = useState(false);
+  const [confirmCancel, setConfirmCancel] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
@@ -53,6 +61,8 @@ export default function SettingsPage() {
       if (q.exerciseMinutes) setExerciseMinutes(Number(q.exerciseMinutes));
       if (q.exerciseLocation) setExerciseLocation(q.exerciseLocation);
       if (typeof q.hasBabyUnder1 === "boolean") setHasBabyUnder1(q.hasBabyUnder1);
+      if (typeof q.isBreastfeeding === "boolean") setIsBreastfeeding(q.isBreastfeeding);
+      if (q.restDay) setRestDay(String(q.restDay));
       if (Array.isArray(q.healthIssues)) setHealthIssues(q.healthIssues);
       if (q.foodPreference) setFoodPreference(q.foodPreference);
     }
@@ -85,6 +95,8 @@ export default function SettingsPage() {
       exerciseMinutes,
       exerciseLocation,
       hasBabyUnder1,
+      isBreastfeeding,
+      restDay,
       healthIssues,
       foodPreference,
     };
@@ -100,6 +112,7 @@ export default function SettingsPage() {
 
       await updateUserDocument({
         quizAnswers: updatedAnswers,
+        "progress.waterGoal": isBreastfeeding ? 11 : 8,
         ...(data.plan ? { plan: data.plan } : {}),
       });
 
@@ -118,6 +131,22 @@ export default function SettingsPage() {
   const handleLogout = async () => {
     await logoutUser();
     router.push("/");
+  };
+
+  const handleCancelMembership = async () => {
+    setCancelling(true);
+    try {
+      await updateUserDocument({
+        isPaid: false,
+        subscriptionStatus: "cancelled",
+      });
+      setConfirmCancel(false);
+      router.push("/checkout");
+    } catch (err) {
+      console.error("Error updating subscription status:", err);
+    } finally {
+      setCancelling(false);
+    }
   };
 
   if (loading) {
@@ -295,6 +324,62 @@ export default function SettingsPage() {
               </div>
             </div>
 
+            {/* Breastfeeding / Hydration Goal */}
+            <div>
+              <label className="block text-sm font-bold text-plum mb-2 flex items-center gap-2">
+                <Droplets className="w-4 h-4 text-sage-600" /> Breastfeeding / Extra Hydration Support
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsBreastfeeding(true)}
+                  className={`py-3 px-4 rounded-xl border-2 text-xs sm:text-sm font-bold transition-all ${
+                    isBreastfeeding
+                      ? "border-plum bg-sage-50 text-plum"
+                      : "border-peach-200 bg-cream-50 text-plum/70"
+                  }`}
+                >
+                  Yes (11-Glass Goal)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsBreastfeeding(false)}
+                  className={`py-3 px-4 rounded-xl border-2 text-xs sm:text-sm font-bold transition-all ${
+                    !isBreastfeeding
+                      ? "border-plum bg-peach-100/70 text-plum"
+                      : "border-peach-200 bg-cream-50 text-plum/70"
+                  }`}
+                >
+                  Standard (8-Glass Goal)
+                </button>
+              </div>
+            </div>
+
+            {/* Preferred Weekly Rest Day */}
+            <div>
+              <label className="block text-sm font-bold text-plum mb-2 flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-plum" /> Preferred Weekly Rest Day
+              </label>
+              <div className="grid grid-cols-4 sm:grid-cols-7 gap-2 text-xs font-bold">
+                {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map(
+                  (d) => (
+                    <button
+                      key={d}
+                      type="button"
+                      onClick={() => setRestDay(d)}
+                      className={`py-2.5 px-1 rounded-xl border-2 transition-all ${
+                        restDay === d
+                          ? "border-plum bg-peach-100/70 text-plum"
+                          : "border-peach-200 bg-cream-50 text-plum/60 hover:border-peach-300"
+                      }`}
+                    >
+                      {d.slice(0, 3)}
+                    </button>
+                  )
+                )}
+              </div>
+            </div>
+
             {/* Pain or Health Issues */}
             <div>
               <label className="block text-sm font-bold text-plum mb-2 flex items-center gap-2">
@@ -384,6 +469,76 @@ export default function SettingsPage() {
               Updating your answers automatically recalculates your 4-week workout exercises and aligned meal recommendations.
             </span>
           </div>
+        </div>
+
+        {/* Membership & 1-Click Cancellation Card */}
+        <div className="card-soft space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h2 className="font-heading font-bold text-xl text-plum flex items-center gap-2">
+                <CreditCard className="w-5 h-5 text-plum" /> Membership &amp; Access
+              </h2>
+              <p className="text-xs text-plum/65 mt-0.5">
+                {isDemoMode
+                  ? "Currently exploring in Instant Demo Preview Mode."
+                  : userData?.isPaid
+                  ? "Fit Mom 20 All-Access Membership (₹499/month) • No lock-in."
+                  : "Membership paused or inactive."}
+              </p>
+            </div>
+            <span
+              className={`text-xs font-bold px-3 py-1 rounded-full border ${
+                userData?.isPaid
+                  ? "bg-sage-100 text-sage-700 border-sage-200"
+                  : "bg-peach-100 text-plum border-peach-200"
+              }`}
+            >
+              {isDemoMode ? "Demo Active" : userData?.isPaid ? "Active" : "Inactive"}
+            </span>
+          </div>
+
+          {userData?.isPaid && !confirmCancel && (
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-peach-100">
+              <p className="text-xs text-plum/70">
+                Need a break? Pause or cancel anytime with one tap — your saved progress stays safe.
+              </p>
+              <button
+                type="button"
+                onClick={() => setConfirmCancel(true)}
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-plum/75 hover:text-red-700 bg-cream-50 hover:bg-red-50 px-3.5 py-2 rounded-xl border border-peach-200 transition-colors"
+              >
+                <PauseCircle className="w-4 h-4" /> Pause / Cancel Membership
+              </button>
+            </div>
+          )}
+
+          {confirmCancel && (
+            <div className="bg-red-50/70 border border-red-200 rounded-2xl p-4 space-y-3 text-xs">
+              <p className="font-bold text-plum">
+                Confirm pausing or cancelling your membership?
+              </p>
+              <p className="text-plum/75">
+                You will be paused immediately and returned to the access screen. Your quiz answers and completed progress history remain safely saved whenever you decide to return.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={handleCancelMembership}
+                  disabled={cancelling}
+                  className="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded-xl transition-colors"
+                >
+                  {cancelling ? "Updating..." : "Yes, Pause / Cancel Access"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setConfirmCancel(false)}
+                  className="btn-secondary py-2 px-4 text-xs"
+                >
+                  Keep Active
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </main>

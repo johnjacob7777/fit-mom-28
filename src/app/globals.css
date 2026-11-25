@@ -58,3 +58,18 @@ h1, h2, h3, h4, .font-heading {
 .animate-fade-in {
   animation: fadeIn 0.4s ease-out forwards;
 }
+
+@media print {
+  header,
+  .no-print,
+  iframe {
+    display: none !important;
+  }
+  body {
+    background: #ffffff !important;
+  }
+  .card-soft {
+    box-shadow: none !important;
+    border-color: #dddddd !important;
+  }
+}

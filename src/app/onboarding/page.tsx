@@ -43,6 +43,7 @@ export default function OnboardingPage() {
   const [currentWeight, setCurrentWeight] = useState("");
   const [goalWeight, setGoalWeight] = useState("");
   const [hasBabyUnder1, setHasBabyUnder1] = useState<boolean | null>(null);
+  const [isBreastfeeding, setIsBreastfeeding] = useState<boolean>(false);
   const [exerciseMinutes, setExerciseMinutes] = useState<number | null>(20);
   const [exerciseLocation, setExerciseLocation] = useState("home_no_equipment");
   const [healthIssues, setHealthIssues] = useState<string[]>(["none"]);
@@ -59,6 +60,7 @@ export default function OnboardingPage() {
       if (q.currentWeight) setCurrentWeight(String(q.currentWeight));
       if (q.goalWeight) setGoalWeight(String(q.goalWeight));
       if (typeof q.hasBabyUnder1 === "boolean") setHasBabyUnder1(q.hasBabyUnder1);
+      if (typeof q.isBreastfeeding === "boolean") setIsBreastfeeding(q.isBreastfeeding);
       if (q.exerciseMinutes) setExerciseMinutes(Number(q.exerciseMinutes));
       if (q.exerciseLocation) setExerciseLocation(q.exerciseLocation);
       if (Array.isArray(q.healthIssues)) setHealthIssues(q.healthIssues);
@@ -133,6 +135,8 @@ export default function OnboardingPage() {
       currentWeight,
       goalWeight,
       hasBabyUnder1: hasBabyUnder1 || false,
+      isBreastfeeding,
+      restDay: "Sunday",
       exerciseMinutes: exerciseMinutes || 20,
       exerciseLocation,
       healthIssues,
@@ -340,6 +344,20 @@ export default function OnboardingPage() {
                   </span>
                 </button>
               </div>
+
+              {/* Breastfeeding / Nursing hydration support */}
+              <label className="flex items-start gap-3 p-4 rounded-2xl border border-sage-200 bg-sage-50/70 text-left cursor-pointer hover:bg-sage-50 transition-colors">
+                <input
+                  type="checkbox"
+                  checked={isBreastfeeding}
+                  onChange={(e) => setIsBreastfeeding(e.target.checked)}
+                  className="mt-0.5 accent-plum w-4 h-4 rounded shrink-0"
+                />
+                <span className="text-xs text-plum/85 leading-relaxed">
+                  <strong className="block text-plum">I am currently breastfeeding / nursing (optional)</strong>
+                  Adjusts your daily hydration goal to 11 glasses and prioritizes steady-energy nursing nutrition reminders.
+                </span>
+              </label>
 
               {/* Doctor Reminder Requirement on Baby Question */}
               <div className="bg-peach-50 border border-peach-200 rounded-xl p-3.5 text-xs text-plum/80 text-left flex items-start gap-2.5">

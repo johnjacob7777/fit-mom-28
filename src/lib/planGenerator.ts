@@ -12,6 +12,8 @@ export interface QuizAnswers {
   currentWeight: string;
   goalWeight: string;
   hasBabyUnder1: boolean;
+  isBreastfeeding?: boolean;
+  restDay?: string;           // "Sunday" default, or any day Monday-Sunday
   exerciseMinutes: number;    // 10, 20, or 30
   exerciseLocation: string;   // "home_no_equipment" | "home_light_equipment"
   healthIssues: string[];     // ["back_pain", "knee_pain", "none", "other"]
@@ -52,6 +54,8 @@ export interface MealGuidance {
   highlight: string;
   prepTip: string;
   familyNote: string;
+  ingredients: string[];
+  steps: string[];
 }
 
 export interface GroceryCategory {
@@ -973,7 +977,7 @@ const MEALS_EGGS = {
   ],
 };
 
-/** Generates practical mom-friendly cooking shortcuts & family notes for any meal. */
+/** Generates practical mom-friendly cooking shortcuts, 3-step quick recipe & family notes. */
 export function getMealGuidance(mealName: string, slot: "breakfast" | "lunch" | "dinner" | "snack"): MealGuidance {
   const lower = mealName.toLowerCase();
 
@@ -983,6 +987,12 @@ export function getMealGuidance(mealName: string, slot: "breakfast" | "lunch" | 
       highlight: "Steady Afternoon Energy",
       prepTip: "Keep pre-portioned in small containers or jars on the kitchen counter for one-handed snacking.",
       familyNote: "Easy to share directly with toddlers or older kids as an after-school bite.",
+      ingredients: ["1 serving portion of your selected snack", "Optional pinch of roasted cumin / chaat masala", "1 tall glass of water or warm herbal tea alongside"],
+      steps: [
+        "Portion directly into a small bowl rather than eating out of the big packet.",
+        "Pair with water or buttermilk so afternoon cravings drop gently.",
+        "Take 3 unhurried bites sitting down before heading back to tasks.",
+      ],
     };
   }
 
@@ -992,6 +1002,12 @@ export function getMealGuidance(mealName: string, slot: "breakfast" | "lunch" | 
       highlight: "High Fiber & Zero-Stress Prep",
       prepTip: "Prep overnight in a jar or keep sliced fruit ready the evening before.",
       familyNote: "Kids love warm oats or toast strips with mild peanut butter or mashed banana.",
+      ingredients: ["1/2 cup rolled oats / muesli or 2 slices whole-wheat bread", "Milk, curd, or nut butter base", "1 chopped seasonal fruit + teaspoon honey or seeds"],
+      steps: [
+        "Simmer oats gently for 3–4 mins (or toast whole-wheat slices until golden).",
+        "Top with sliced banana/berries and a spoon of nut butter or seeds for lasting fullness.",
+        "Serve mild portion first if sharing with little ones.",
+      ],
     };
   }
 
@@ -1001,6 +1017,12 @@ export function getMealGuidance(mealName: string, slot: "breakfast" | "lunch" | 
       highlight: "High Protein Recovery",
       prepTip: "Chop onions/tomatoes once for 2–3 days in an airtight box to cut morning prep in half.",
       familyNote: "Take out mild scrambled egg for little ones before adding green chilies or pepper.",
+      ingredients: ["2 eggs", "Finely chopped onion, tomato & coriander", "1 tsp ghee/oil + side of 1–2 rotis, rice, or toast"],
+      steps: [
+        "Warm 1 tsp ghee/oil on medium-low heat and sauté onions & tomatoes for 2 minutes.",
+        "Whisk/fold in eggs softly until just set (keeps them tender and juicy).",
+        "Serve hot alongside warm rotis, brown rice, or toasted bread.",
+      ],
     };
   }
 
@@ -1010,6 +1032,12 @@ export function getMealGuidance(mealName: string, slot: "breakfast" | "lunch" | 
       highlight: "Gut-Friendly & Nourishing",
       prepTip: "Boil extra dal/legumes in one batch and refrigerate half for an effortless next-day meal.",
       familyNote: "Naturally toddler-safe before final tadka — just mash softly with a drop of ghee.",
+      ingredients: ["1/2 cup soaked dal / chickpeas / rajma", "Pinch of turmeric, jeera & grated ginger", "Steamed rice or 2 rotis + sliced cucumber raita"],
+      steps: [
+        "Pressure cook washed dal/legumes with turmeric and water until creamy (3–4 whistles).",
+        "Finish with a quick 1-minute jeera-garlic tadka in 1 tsp ghee.",
+        "Pair half your plate with crisp cucumber/salad or curd for cool digestion.",
+      ],
     };
   }
 
@@ -1019,6 +1047,12 @@ export function getMealGuidance(mealName: string, slot: "breakfast" | "lunch" | 
       highlight: "Lean Protein & Iron",
       prepTip: "Marinate protein in lemon, curd & basic spices in the morning so cooking takes 10 minutes.",
       familyNote: "Use tender bite-sized strips and mild spices so the whole table eats the same meal.",
+      ingredients: ["150g lean chicken breast or fish fillet", "2 tbsp curd/lemon, ginger-garlic & turmeric", "1 cup steamed greens, salad, or 1–2 rotis / rice"],
+      steps: [
+        "Rub protein quickly with lemon, turmeric, salt, and ginger-garlic paste.",
+        "Pan-sear or simmer gently with minimal oil for 8–10 mins until tender throughout.",
+        "Serve with warm rotis/rice and fresh crunchy veggies for sustained energy.",
+      ],
     };
   }
 
@@ -1028,6 +1062,12 @@ export function getMealGuidance(mealName: string, slot: "breakfast" | "lunch" | 
       highlight: "Balanced Sustained Energy",
       prepTip: "Toss frozen peas or grated carrot right into the pan to sneak in extra veggies quickly.",
       familyNote: "Universal family favorite — serve mild with curd or simple coconut chutney.",
+      ingredients: ["Main base (paneer/tofu/poha/suji/batter)", "Handful of diced carrots, peas & onions", "1 tsp mustard/jeera + fresh curry leaves or coriander"],
+      steps: [
+        "Temper jeera/mustard & veggies lightly in 1 tsp oil for 3 minutes until bright.",
+        "Fold in protein/grain base and cook covered for 5 minutes cleanly.",
+        "Garnish with fresh lemon/coriander and enjoy warm with curd or chutney.",
+      ],
     };
   }
 
@@ -1036,7 +1076,32 @@ export function getMealGuidance(mealName: string, slot: "breakfast" | "lunch" | 
     highlight: "Wholesome Home Fuel",
     prepTip: "Keep prep ultra-simple with pre-washed greens and minimal spices.",
     familyNote: "Easy to portion for both busy parents and kids without making two separate meals.",
+    ingredients: ["Whole food primary ingredient + seasonal vegetables", "Simple home tadka spices (turmeric, cumin, salt)", "1 tsp ghee/olive oil + curd or side salad"],
+    steps: [
+      "Prep washed veggies and spices in one quick pan.",
+      "Cook gently over medium heat until tender without heavy oil.",
+      "Serve balanced with complex carbs and protein to keep afternoon crashes away.",
+    ],
   };
+}
+
+/** Returns an alternative meal option for the given slot & dietary preference */
+export function getAlternativeMeal(
+  slot: "breakfast" | "lunch" | "dinner" | "snack",
+  foodPreference: string,
+  currentMeal: string
+): string {
+  let pool = MEALS_VEG;
+  if (foodPreference === "non_vegetarian") pool = MEALS_NONVEG;
+  if (foodPreference === "eggs_only") pool = MEALS_EGGS;
+
+  const list = pool[slot];
+  const idx = list.findIndex((m) => m.toLowerCase() === currentMeal.toLowerCase());
+  if (idx >= 0) {
+    return list[(idx + 1) % list.length];
+  }
+  const different = list.filter((m) => m.toLowerCase() !== currentMeal.toLowerCase());
+  return different[0] || list[0];
 }
 
 /** Builds a clean grouped weekly grocery list from a 7-day meal slice. */
@@ -1177,15 +1242,22 @@ export function generatePlan(answers: QuizAnswers): Plan {
   if (answers.exerciseMinutes === 10) exerciseCount = 2;
   if (answers.exerciseMinutes === 30) exerciseCount = 4;
 
+  // Determine rest day preference (defaults to Sunday)
+  const preferredRestDay = answers.restDay || "Sunday";
+
   // Generate 28 days of workouts across 4 themed weeks
   const workouts: WorkoutDay[] = [];
   for (let day = 1; day <= 28; day++) {
     const dayIndexZero = day - 1;
     const week = Math.floor(dayIndexZero / 7) + 1;
     const dayOfWeek = getDayOfWeek(day);
-    const isRestDay = dayOfWeek === "Sunday";
+    const isRestDay = dayOfWeek === preferredRestDay;
     const weekTheme = WEEK_THEMES[week - 1];
-    const focusTitle = DAILY_FOCUSES[dayIndexZero % 7];
+    const focusTitle = isRestDay
+      ? "Rest & Mindful Recovery"
+      : dayIndexZero % 7 === 6
+      ? "Full-Body Calm Mobility"
+      : DAILY_FOCUSES[dayIndexZero % 7];
 
     if (isRestDay) {
       workouts.push({

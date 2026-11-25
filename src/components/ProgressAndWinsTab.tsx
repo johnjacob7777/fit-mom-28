@@ -1,7 +1,8 @@
 "use client";
 // =============================================================
-// PROGRESS & WINS TAB — Non-scale victories, mood reflection,
-// 28-day consistency map, and gentle optional weight chart.
+// PROGRESS & WINS TAB — Non-scale victories, current & best
+// streaks, 28-day consistency map, exportable summary, and
+// gentle optional weight trend chart.
 // =============================================================
 import { useState, useMemo } from "react";
 import { MoodWinEntry } from "@/context/AuthContext";
@@ -13,12 +14,16 @@ import {
   CheckCircle2,
   Heart,
   Calendar,
+  Flame,
+  Copy,
+  Check,
 } from "lucide-react";
 
 interface ProgressAndWinsTabProps {
   today: string;
   workoutsCompleted: Record<string, boolean>;
   waterIntake: Record<string, number>;
+  waterGoal?: number;
   weightLog: Record<string, number>;
   moodWins: Record<string, MoodWinEntry>;
   onSaveMoodWin: (mood: string, note: string) => Promise<void>;
@@ -32,6 +37,14 @@ const MOOD_OPTIONS = [
   { id: "Proud", label: "💛 Proud I Showed Up" },
 ];
 
+function toYMD(d: Date): string {
+  return [
+    d.getFullYear(),
+    String(d.getMonth() + 1).padStart(2, "0"),
+    String(d.getDate()).padStart(2, "0"),
+  ].join("-");
+}
+
 /** Formats YYYY-MM-DD safely in local calendar without UTC timezone shift */
 function formatLocalYMD(ymd: string): string {
   const parts = ymd.split("-").map(Number);
@@ -44,6 +57,7 @@ export default function ProgressAndWinsTab({
   today,
   workoutsCompleted,
   waterIntake,
+  waterGoal = 8,
   weightLog,
   moodWins,
   onSaveMoodWin,
@@ -54,17 +68,58 @@ export default function ProgressAndWinsTab({
   const [noteInput, setNoteInput] = useState<string>(todayWin?.note || "");
   const [savedMoodMsg, setSavedMoodMsg] = useState<boolean>(false);
   const [weightInput, setWeightInput] = useState<string>("");
+  const [copiedSummary, setCopiedSummary] = useState<boolean>(false);
 
-  // Stats
   const totalWorkoutsDone = useMemo(
     () => Object.values(workoutsCompleted).filter(Boolean).length,
     [workoutsCompleted]
   );
 
   const hydratedDays = useMemo(
-    () => Object.values(waterIntake).filter((g) => g >= 6).length,
-    [waterIntake]
+    () =>
+      Object.values(waterIntake).filter((g) => g >= Math.max(6, waterGoal - 2))
+        .length,
+    [waterIntake, waterGoal]
   );
+
+  // Current streak (allowing today not yet marked if yesterday was done) & longest streak
+  const { currentStreak, bestStreak } = useMemo(() => {
+    const doneSet = new Set(
+      Object.entries(workoutsCompleted)
+        .filter(([, v]) => Boolean(v))
+        .map(([k]) => k)
+    );
+
+    // Current streak
+    let cur = 0;
+    const probe = new Date();
+    if (!doneSet.has(toYMD(probe))) {
+      probe.setDate(probe.getDate() - 1);
+    }
+    while (doneSet.has(toYMD(probe))) {
+      cur++;
+      probe.setDate(probe.getDate() - 1);
+    }
+
+    // Best streak across sorted dates
+    const sorted = Array.from(doneSet).sort();
+    let best = 0;
+    let run = 0;
+    let prevTime: number | null = null;
+    for (const dateStr of sorted) {
+      const [y, m, d] = dateStr.split("-").map(Number);
+      const time = new Date(y, m - 1, d).getTime();
+      if (prevTime !== null && Math.round((time - prevTime) / 86400000) === 1) {
+        run++;
+      } else {
+        run = 1;
+      }
+      if (run > best) best = run;
+      prevTime = time;
+    }
+
+    return { currentStreak: cur, bestStreak: best };
+  }, [workoutsCompleted]);
 
   // Last 28 days timeline ending today
   const last28Days = useMemo(() => {
@@ -73,11 +128,7 @@ export default function ProgressAndWinsTab({
     for (let i = 27; i >= 0; i--) {
       const d = new Date(base);
       d.setDate(base.getDate() - i);
-      const ymd = [
-        d.getFullYear(),
-        String(d.getMonth() + 1).padStart(2, "0"),
-        String(d.getDate()).padStart(2, "0"),
-      ].join("-");
+      const ymd = toYMD(d);
       items.push({
         ymd,
         label: d.getDate(),
@@ -112,16 +163,42 @@ export default function ProgressAndWinsTab({
     setWeightInput("");
   };
 
+  const handleCopySummary = async () => {
+    const lines = [
+      `Fit Mom 20 Progress Snapshot (${formatLocalYMD(today)})`,
+      `• Total Sessions Completed: ${totalWorkoutsDone}`,
+      `• Current Active Streak: ${currentStreak} day(s) • Best: ${bestStreak} day(s)`,
+      `• Mindful Check-Ins: ${Object.keys(moodWins).length}`,
+      `• Great Hydration Days: ${hydratedDays}`,
+    ];
+    try {
+      await navigator.clipboard.writeText(lines.join("\n"));
+      setCopiedSummary(true);
+      setTimeout(() => setCopiedSummary(false), 2500);
+    } catch {
+      // Ignore if clipboard disabled
+    }
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       {/* ───────── SUMMARY WINS STRIP ───────── */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="card-soft p-4 text-center">
           <Award className="w-5 h-5 text-plum mx-auto mb-1" />
           <p className="text-2xl font-heading font-extrabold text-plum">
             {totalWorkoutsDone}
           </p>
           <p className="text-[11px] text-plum/65 font-medium">Sessions Shown Up</p>
+        </div>
+        <div className="card-soft p-4 text-center">
+          <Flame className="w-5 h-5 text-peach-400 mx-auto mb-1" />
+          <p className="text-2xl font-heading font-extrabold text-plum">
+            {currentStreak}d
+          </p>
+          <p className="text-[11px] text-plum/65 font-medium">
+            Streak (Best: {bestStreak}d)
+          </p>
         </div>
         <div className="card-soft p-4 text-center">
           <Heart className="w-5 h-5 text-blush-400 mx-auto mb-1" />
@@ -135,19 +212,36 @@ export default function ProgressAndWinsTab({
           <p className="text-2xl font-heading font-extrabold text-plum">
             {hydratedDays}
           </p>
-          <p className="text-[11px] text-plum/65 font-medium">Hydrated Days (6+)</p>
+          <p className="text-[11px] text-plum/65 font-medium">Hydrated Days</p>
         </div>
       </div>
 
       {/* ───────── NON-SCALE WINS CHECK-IN ───────── */}
       <div className="card-soft space-y-4">
-        <div>
-          <h2 className="font-heading font-bold text-xl text-plum flex items-center gap-2">
-            <Smile className="w-5 h-5 text-peach-400" /> Non-Scale Wins &amp; How You Feel
-          </h2>
-          <p className="text-xs text-plum/65 mt-0.5">
-            True progress shows up in energy, mood, posture, and patience — not just numbers.
-          </p>
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <div>
+            <h2 className="font-heading font-bold text-xl text-plum flex items-center gap-2">
+              <Smile className="w-5 h-5 text-peach-400" /> Non-Scale Wins &amp; How You Feel
+            </h2>
+            <p className="text-xs text-plum/65 mt-0.5">
+              True progress shows up in energy, mood, posture, and patience — not just numbers.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={handleCopySummary}
+            className="btn-secondary py-1.5 px-3 text-xs"
+          >
+            {copiedSummary ? (
+              <>
+                <Check className="w-3.5 h-3.5 text-sage-600" /> Copied!
+              </>
+            ) : (
+              <>
+                <Copy className="w-3.5 h-3.5" /> Share / Export Wins
+              </>
+            )}
+          </button>
         </div>
 
         <form onSubmit={handleMoodSubmit} className="space-y-3">

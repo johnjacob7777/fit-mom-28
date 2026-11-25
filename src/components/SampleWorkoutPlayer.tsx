@@ -243,9 +243,7 @@ export default function SampleWorkoutPlayer() {
                       <ExerciseDemoDisplay
                         exerciseName={ex.name}
                         isPlaying
-                        isGentle={sampleGentle}
                         compact
-                        preferVideo
                       />
                     )}
                   </div>

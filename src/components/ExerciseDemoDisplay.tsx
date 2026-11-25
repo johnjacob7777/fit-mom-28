@@ -2,39 +2,25 @@
 // =============================================================
 // EXERCISE DEMO DISPLAY — Renders:
 // 1. Uploaded MP4 clip (`public/videos/<slug>.mp4`) if present
-// 2. Embedded verified YouTube form tutorial (with 1-tap Motion Loop toggle)
-// 3. Otherwise, the smooth Live Animated Motion Visual
+// 2. Embedded verified YouTube form tutorial
+// 3. Minimal rest/breathing notice for recovery steps
 // =============================================================
-import { useState, useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { getExerciseMedia } from "@/lib/exerciseMedia";
-import ExerciseMotionVisual from "@/components/ExerciseMotionVisual";
-import { ExternalLink, Video, Sparkles } from "lucide-react";
+import { ExternalLink, Video, Wind } from "lucide-react";
 
 interface ExerciseDemoDisplayProps {
   exerciseName: string;
   isPlaying?: boolean;
-  isGentle?: boolean;
   compact?: boolean;
-  /** When true, opens the YouTube video tutorial directly instead of Motion Loop first */
-  preferVideo?: boolean;
 }
 
 export default function ExerciseDemoDisplay({
   exerciseName,
   isPlaying = true,
-  isGentle = false,
   compact = false,
-  preferVideo = false,
 }: ExerciseDemoDisplayProps) {
   const media = useMemo(() => getExerciseMedia(exerciseName), [exerciseName]);
-  const [viewMode, setViewMode] = useState<"video" | "motion">(
-    preferVideo && media.youtubeEmbedUrl ? "video" : "motion"
-  );
-
-  // Sync default tab cleanly when exercise changes
-  useEffect(() => {
-    setViewMode(preferVideo && media.youtubeEmbedUrl ? "video" : "motion");
-  }, [exerciseName, preferVideo, media.youtubeEmbedUrl]);
 
   // Priority 1: Uploaded local/CDN MP4 video clip
   if (media.mp4Url) {
@@ -53,36 +39,14 @@ export default function ExerciseDemoDisplay({
     );
   }
 
-  return (
-    <div className="space-y-2">
-      {/* Mode Switcher when a verified YouTube video exists */}
-      {media.youtubeEmbedUrl && (
-        <div className="flex flex-wrap items-center justify-between gap-2 px-1">
-          <div className="inline-flex bg-white p-0.5 rounded-xl border border-peach-200 text-[11px] font-semibold">
-            <button
-              type="button"
-              onClick={() => setViewMode("video")}
-              className={`px-2.5 py-1 rounded-lg flex items-center gap-1 transition-all ${
-                viewMode === "video"
-                  ? "bg-plum text-white shadow-xs"
-                  : "text-plum/70 hover:text-plum"
-              }`}
-            >
-              <Video className="w-3 h-3" /> YouTube Tutorial
-            </button>
-            <button
-              type="button"
-              onClick={() => setViewMode("motion")}
-              className={`px-2.5 py-1 rounded-lg flex items-center gap-1 transition-all ${
-                viewMode === "motion"
-                  ? "bg-plum text-white shadow-xs"
-                  : "text-plum/70 hover:text-plum"
-              }`}
-            >
-              <Sparkles className="w-3 h-3" /> Animated Motion
-            </button>
-          </div>
-
+  // Priority 2: Verified embeddable YouTube form tutorial
+  if (media.youtubeEmbedUrl) {
+    return (
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-between gap-2 px-1">
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-plum/75">
+            <Video className="w-3.5 h-3.5 text-plum" /> Video Form Demonstration
+          </span>
           <a
             href={media.youtubeWatchUrl || media.youtubeSearchUrl}
             target="_blank"
@@ -92,9 +56,7 @@ export default function ExerciseDemoDisplay({
             Open on YouTube <ExternalLink className="w-3 h-3" />
           </a>
         </div>
-      )}
 
-      {viewMode === "video" && media.youtubeEmbedUrl ? (
         <div className="rounded-2xl overflow-hidden border border-peach-200 bg-black aspect-video shadow-xs">
           <iframe
             key={media.youtubeEmbedUrl}
@@ -105,14 +67,16 @@ export default function ExerciseDemoDisplay({
             allowFullScreen
           />
         </div>
-      ) : (
-        <ExerciseMotionVisual
-          exerciseName={exerciseName}
-          isPlaying={isPlaying}
-          isGentle={isGentle}
-          compact={compact}
-        />
-      )}
+      </div>
+    );
+  }
+
+  // Fallback for breathing/water recovery pauses between sets
+  return (
+    <div className="bg-sage-50/70 border border-sage-200 rounded-2xl p-4 text-center text-xs text-plum/80 flex flex-col items-center gap-1.5">
+      <Wind className="w-5 h-5 text-sage-600" />
+      <p className="font-semibold text-plum">Recovery Break</p>
+      <p>Relax your shoulders, sip water gently, and take steady slow breaths.</p>
     </div>
   );
 }

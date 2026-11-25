@@ -2,7 +2,6 @@
 // Exercise Media Registry — supports:
 // 1. Uploaded MP4/WebM files in `public/videos/<slug>.mp4`
 // 2. Verified embeddable YouTube form tutorials for all 55 moves
-// 3. Built-in Live Animated Motion Guide + Voice Coach
 // ---------------------------------------------------------
 import uploadedVideos from "./uploadedVideos.generated.json";
 

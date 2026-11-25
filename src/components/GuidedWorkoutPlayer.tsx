@@ -503,11 +503,10 @@ export default function GuidedWorkoutPlayer({
                 </div>
               </div>
 
-              {/* Visual Video / Animated Biomechanics Demo */}
+              {/* Exercise Video Demonstration */}
               <ExerciseDemoDisplay
                 exerciseName={currentStep.title}
                 isPlaying={isRunning}
-                isGentle={isGentleMode}
                 compact={compact}
               />
 

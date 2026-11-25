@@ -3,6 +3,7 @@ import type { Config } from "tailwindcss";
 const config: Config = {
   content: [
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/context/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/lib/**/*.{js,ts,jsx,tsx,mdx}",
   ],
@@ -29,6 +30,7 @@ const config: Config = {
           100: "#FBE6EC",
           200: "#F7C6D0",
           300: "#F1A3B3",
+          400: "#E47E93",
         },
         sage: {
           DEFAULT: "#A8C3A0",
@@ -38,6 +40,9 @@ const config: Config = {
           300: "#A8C3A0",
           400: "#8EA986",
           500: "#6E8966",
+          600: "#546D4D",
+          700: "#3E5238",
+          800: "#2C3B28",
         },
         plum: {
           DEFAULT: "#4A2C40",

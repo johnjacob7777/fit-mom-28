@@ -106,11 +106,11 @@ export default function CheckoutPage() {
 
           <ul className="space-y-3 text-sm text-plum/85 py-6">
             {[
-              "Personalized 20-minute daily home workouts",
-              "Gentle posture & postpartum-conscious variations",
-              "Balanced weekly meal guides (fits your diet)",
-              "Interactive daily timer & streak tracker",
-              "Water intake and optional wellness logging",
+              "4-week guided daily workouts with form & breathing cues",
+              "1-tap Energy Check-In (5-Min Rescue & Neck/Back Unwind)",
+              "Weekly family-friendly meal hacks & smart grocery list",
+              "Instant gentle exercise swaps for back & knee comfort",
+              "28-day consistency map, non-scale wins & hydration tracker",
             ].map((f) => (
               <li key={f} className="flex items-start gap-2.5">
                 <CheckCircle2 className="w-4 h-4 text-sage-600 shrink-0 mt-0.5" />

@@ -26,6 +26,9 @@ export default function SettingsPage() {
   const router = useRouter();
   const { user, userData, loading, updateUserDocument, logoutUser } = useAuth();
 
+  const [age, setAge] = useState<string>("30");
+  const [currentWeight, setCurrentWeight] = useState<string>("");
+  const [goalWeight, setGoalWeight] = useState<string>("");
   const [exerciseMinutes, setExerciseMinutes] = useState<number>(20);
   const [exerciseLocation, setExerciseLocation] = useState<string>("home_no_equipment");
   const [hasBabyUnder1, setHasBabyUnder1] = useState<boolean>(false);
@@ -44,6 +47,9 @@ export default function SettingsPage() {
   useEffect(() => {
     if (userData?.quizAnswers) {
       const q = userData.quizAnswers as any;
+      if (q.age) setAge(String(q.age));
+      if (q.currentWeight) setCurrentWeight(String(q.currentWeight));
+      if (q.goalWeight) setGoalWeight(String(q.goalWeight));
       if (q.exerciseMinutes) setExerciseMinutes(Number(q.exerciseMinutes));
       if (q.exerciseLocation) setExerciseLocation(q.exerciseLocation);
       if (typeof q.hasBabyUnder1 === "boolean") setHasBabyUnder1(q.hasBabyUnder1);
@@ -73,6 +79,9 @@ export default function SettingsPage() {
 
     const updatedAnswers = {
       ...(userData?.quizAnswers || {}),
+      age,
+      currentWeight,
+      goalWeight,
       exerciseMinutes,
       exerciseLocation,
       hasBabyUnder1,
@@ -155,6 +164,49 @@ export default function SettingsPage() {
           )}
 
           <form onSubmit={handleSave} className="space-y-6">
+            {/* Age & Optional Weight */}
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-plum mb-1.5">
+                  Age
+                </label>
+                <input
+                  type="number"
+                  min="16"
+                  max="70"
+                  value={age}
+                  onChange={(e) => setAge(e.target.value)}
+                  className="w-full bg-cream-50 border-2 border-peach-200 rounded-xl px-3 py-2.5 text-sm font-bold text-plum focus:border-plum focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-plum mb-1.5">
+                  Current (kg)
+                </label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={currentWeight}
+                  onChange={(e) => setCurrentWeight(e.target.value)}
+                  placeholder="Optional"
+                  className="w-full bg-cream-50 border-2 border-peach-200 rounded-xl px-3 py-2.5 text-sm font-bold text-plum focus:border-plum focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-plum mb-1.5">
+                  Goal (kg)
+                </label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={goalWeight}
+                  onChange={(e) => setGoalWeight(e.target.value)}
+                  placeholder="Optional"
+                  className="w-full bg-cream-50 border-2 border-peach-200 rounded-xl px-3 py-2.5 text-sm font-bold text-plum focus:border-plum focus:outline-none"
+                />
+              </div>
+            </div>
+
             {/* Daily Exercise Minutes */}
             <div>
               <label className="block text-sm font-bold text-plum mb-2 flex items-center gap-2">

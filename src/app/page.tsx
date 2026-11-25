@@ -1,4 +1,5 @@
 import Link from "next/link";
+import SampleWorkoutPlayer from "@/components/SampleWorkoutPlayer";
 import {
   Clock,
   BatteryCharging,
@@ -12,8 +13,11 @@ import {
   Heart,
   Droplets,
   Timer,
-  ChevronRight,
   User,
+  Zap,
+  ShoppingBasket,
+  Trophy,
+  Wind,
 } from "lucide-react";
 
 export default function LandingPage() {
@@ -289,97 +293,62 @@ export default function LandingPage() {
             Try a Free 20-Minute Sample Workout
           </h2>
           <p className="text-plum/80 text-base mb-10 max-w-xl mx-auto">
-            Experience how realistic and refreshing a gentle 20-minute daily session feels right in your living room.
+            Press start below to test our calm, step-by-step guided player with form &amp; breathing cues right in your living room.
           </p>
 
-          <div className="card-soft text-left space-y-6 border-2 border-blush-200">
-            <div className="flex flex-wrap items-center justify-between gap-2 pb-4 border-b border-peach-200">
-              <div>
-                <h3 className="font-heading font-bold text-xl text-plum">
-                  Day 1 Sample: Total Body Energizer
-                </h3>
-                <p className="text-xs text-plum/60 mt-0.5">
-                  Equipment: None • Level: Gentle / Beginner friendly
-                </p>
-              </div>
-              <span className="bg-sage-100 text-sage-600 font-semibold text-xs px-3 py-1 rounded-full">
-                ⏱️ 20 Minutes Total
-              </span>
-            </div>
+          <SampleWorkoutPlayer />
+        </div>
+      </section>
 
-            {/* Phase 1: Warmup */}
-            <div>
-              <p className="text-xs uppercase font-bold text-plum/70 tracking-wider mb-2 flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-peach-400" /> Part 1: Gentle Warm-Up (3 mins)
-              </p>
-              <div className="space-y-2 bg-cream-50 p-4 rounded-xl border border-peach-100 text-sm">
-                <div className="flex justify-between items-center">
-                  <span className="font-medium text-plum">Marching in place with shoulder rolls</span>
-                  <span className="text-plum/60 text-xs">1 min 30 sec</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="font-medium text-plum">Gentle side bends & arm reach</span>
-                  <span className="text-plum/60 text-xs">1 min 30 sec</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Phase 2: Core 3 Exercises */}
-            <div>
-              <p className="text-xs uppercase font-bold text-plum/70 tracking-wider mb-2 flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-sage-400" /> Part 2: 3 Simple Exercises (14 mins)
-              </p>
-              <div className="space-y-2 bg-cream-50 p-4 rounded-xl border border-peach-100 text-sm">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <span className="font-medium text-plum block">1. Supported Chair Squats</span>
-                    <span className="text-xs text-plum/60">Lower until sitting, then stand up tall.</span>
-                  </div>
-                  <span className="text-plum/80 font-semibold text-xs shrink-0">10–12 reps</span>
-                </div>
-                <div className="flex justify-between items-center pt-2 border-t border-peach-100/60">
-                  <div>
-                    <span className="font-medium text-plum block">2. Gentle Glute Bridges</span>
-                    <span className="text-xs text-plum/60">Lying on mat, squeeze glutes and lift hips softly.</span>
-                  </div>
-                  <span className="text-plum/80 font-semibold text-xs shrink-0">10–12 reps</span>
-                </div>
-                <div className="flex justify-between items-center pt-2 border-t border-peach-100/60">
-                  <div>
-                    <span className="font-medium text-plum block">3. Wall Push-Ups</span>
-                    <span className="text-xs text-plum/60">Gentle upper body strength with zero floor pressure.</span>
-                  </div>
-                  <span className="text-plum/80 font-semibold text-xs shrink-0">10 reps</span>
-                </div>
-                <p className="text-[11px] text-plum/50 pt-1 italic">
-                  Take a 45-second breather between movements. Repeat for 2–3 gentle rounds.
-                </p>
-              </div>
-            </div>
-
-            {/* Phase 3: Cool Down */}
-            <div>
-              <p className="text-xs uppercase font-bold text-plum/70 tracking-wider mb-2 flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-blush-400" /> Part 3: Calming Cool-Down (3 mins)
-              </p>
-              <div className="space-y-2 bg-cream-50 p-4 rounded-xl border border-peach-100 text-sm">
-                <div className="flex justify-between items-center">
-                  <span className="font-medium text-plum">Child&apos;s pose & deep belly breathing</span>
-                  <span className="text-plum/60 text-xs">1 min 30 sec</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="font-medium text-plum">Neck rolls & seated torso stretch</span>
-                  <span className="text-plum/60 text-xs">1 min 30 sec</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-2 text-center">
-              <Link href="/signup" className="btn-primary w-full sm:w-auto">
-                Get Your Personalized 4-Week Plan <ChevronRight className="w-4 h-4 ml-1" />
-              </Link>
-            </div>
+      {/* ───────── BUILT FOR REAL MOM LIFE (WHAT'S INSIDE) ───────── */}
+      <section className="px-6 py-16 max-w-5xl mx-auto">
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-sage-100 text-sage-700 text-xs font-semibold uppercase tracking-wider mb-3">
+            Designed Around Everyday Chaos
           </div>
+          <h2 className="text-3xl sm:text-4xl font-heading font-bold text-plum">
+            Features That Actually Help Moms Stick With It
+          </h2>
+        </div>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {[
+            {
+              icon: Wind,
+              title: "Guided Step Player",
+              desc: "Gentle countdown ring, safe form tips, pelvic-floor breathing cues, and a soft chime that won't wake baby.",
+            },
+            {
+              icon: Zap,
+              title: "5-Min Rescue & Posture Mode",
+              desc: "Exhausted or neck sore from feeding? One tap swaps today's routine to a 5-min reset or upper-back unwind.",
+            },
+            {
+              icon: ShoppingBasket,
+              title: "Meals & Weekly Grocery List",
+              desc: "Quick 10-min prep shortcuts, kid-friendly family tips, and a WhatsApp-ready shopping checklist.",
+            },
+            {
+              icon: Trophy,
+              title: "Guilt-Free Wins Map",
+              desc: "Track energy boosts, hydration, and non-scale wins across 28 days — zero streaks broken on sick days.",
+            },
+          ].map((feat) => {
+            const Icon = feat.icon;
+            return (
+              <div key={feat.title} className="card-soft p-6 space-y-3">
+                <div className="w-10 h-10 rounded-xl bg-peach-100 text-plum flex items-center justify-center">
+                  <Icon className="w-5 h-5" />
+                </div>
+                <h3 className="font-heading font-bold text-lg text-plum">
+                  {feat.title}
+                </h3>
+                <p className="text-xs text-plum/75 leading-relaxed">
+                  {feat.desc}
+                </p>
+              </div>
+            );
+          })}
         </div>
       </section>
 
@@ -454,10 +423,10 @@ export default function LandingPage() {
                 About the Program
               </p>
               <h3 className="font-heading font-bold text-2xl text-plum mb-2">
-                Built for busy moms by [YOUR NAME]
+                Our Philosophy: Built for Real Motherhood
               </h3>
               <p className="text-sm text-plum/80 leading-relaxed">
-                Created to provide an antidote to unrealistic fitness standards. A respectful, gentle approach that acknowledges broken sleep, recovery, and the mental load of motherhood.
+                Created to provide a calm antidote to unrealistic fitness standards — respecting broken sleep, postpartum healing, feeding posture strain, and the mental load every mom carries.
               </p>
             </div>
           </div>
@@ -485,12 +454,12 @@ export default function LandingPage() {
 
               <ul className="space-y-3 text-left text-sm text-plum/85 mb-8">
                 {[
-                  "Personalized 4-week daily 20-min workout plan",
-                  "Gentle postpartum & pain-conscious variations",
-                  "Aligned weekly meal ideas (veg, non-veg, eggs)",
-                  "Interactive timer and 'done' streak tracker",
-                  "Daily water and optional wellness tracking",
-                  "Fresh updated routines every month",
+                  "Personalized 4-week guided workout plan & breathing cues",
+                  "1-tap Energy Check-In (5-Min Rescue & Posture Unwind)",
+                  "Family-friendly meal hacks + weekly smart grocery list",
+                  "One-tap gentle exercise swaps for joint or back comfort",
+                  "28-day wins calendar, hydration, and optional weight trend",
+                  "Fresh updated movement variety anytime",
                 ].map((feat) => (
                   <li key={feat} className="flex items-start gap-2.5">
                     <CheckCircle2 className="w-4 h-4 text-sage-500 shrink-0 mt-0.5" />

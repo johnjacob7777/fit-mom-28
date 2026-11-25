@@ -7,6 +7,12 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { onAuthStateChanged, signOut as firebaseSignOut } from "firebase/auth";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
+import { Exercise } from "@/lib/planGenerator";
+
+export interface MoodWinEntry {
+  mood: string;
+  note?: string;
+}
 
 export interface UserData {
   email: string;
@@ -19,6 +25,10 @@ export interface UserData {
     workoutsCompleted: Record<string, boolean>;
     waterIntake: Record<string, number>;
     weightLog: Record<string, number>;
+    moodWins?: Record<string, MoodWinEntry>;
+    dailyMode?: Record<string, "standard" | "gentle" | "posture" | "express">;
+    groceryChecked?: Record<string, boolean>;
+    swappedExercises?: Record<string, Record<string, Exercise>>;
   };
 }
 
@@ -49,6 +59,27 @@ const AuthContext = createContext<AuthContextType>({
   startDemoSession: () => {},
   logoutUser: async () => {},
 });
+
+/** Applies dot-notation keys cleanly to a nested state object without mutating original refs */
+function applyDotUpdates<T extends Record<string, any>>(base: T, updates: Record<string, unknown>): T {
+  const updated = JSON.parse(JSON.stringify(base || {}));
+  for (const [key, value] of Object.entries(updates)) {
+    if (key.includes(".")) {
+      const parts = key.split(".");
+      let target: any = updated;
+      for (let i = 0; i < parts.length - 1; i++) {
+        if (!target[parts[i]] || typeof target[parts[i]] !== "object") {
+          target[parts[i]] = {};
+        }
+        target = target[parts[i]];
+      }
+      target[parts[parts.length - 1]] = value;
+    } else {
+      updated[key] = value;
+    }
+  }
+  return updated;
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AppUser | null>(null);
@@ -96,32 +127,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const updateUserDocument = async (updates: Record<string, unknown>) => {
+    const current = userData || {
+      email: user?.email || "mom@fitmom20.demo",
+      displayName: user?.displayName || "Fit Mom",
+      quizCompleted: false,
+      isPaid: false,
+      progress: { workoutsCompleted: {}, waterIntake: {}, weightLog: {} },
+    };
+
     if (isDemoMode || !user || user.uid.startsWith("demo_")) {
-      // Local storage persistence
-      const current = userData || {
-        email: user?.email || "mom@fitmom20.demo",
-        displayName: user?.displayName || "Fit Mom",
-        quizCompleted: false,
-        isPaid: false,
-        progress: { workoutsCompleted: {}, waterIntake: {}, weightLog: {} },
-      };
-
-      // Deep merge helper for nested keys like "progress.workoutsCompleted.2024-01-01"
-      const updated = { ...current };
-      for (const [key, value] of Object.entries(updates)) {
-        if (key.includes(".")) {
-          const parts = key.split(".");
-          let target: any = updated;
-          for (let i = 0; i < parts.length - 1; i++) {
-            if (!target[parts[i]]) target[parts[i]] = {};
-            target = target[parts[i]];
-          }
-          target[parts[parts.length - 1]] = value;
-        } else {
-          (updated as any)[key] = value;
-        }
-      }
-
+      const updated = applyDotUpdates(current, updates);
       setUserData(updated);
       if (typeof window !== "undefined") {
         localStorage.setItem("fitmom_demo_userdata", JSON.stringify(updated));
@@ -129,15 +144,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    // Optimistically apply update in React state so sliders/toggles feel instant
+    const optimistic = applyDotUpdates(current, updates);
+    setUserData(optimistic);
+
     // Firestore update
     try {
       await updateDoc(doc(db, "users", user.uid), updates);
-      await fetchFirestoreData(user.uid);
     } catch (err) {
       console.error("Firestore update error:", err);
-      // Fallback to local state if Firestore update fails
-      const fallback = { ...(userData || {}), ...updates } as UserData;
-      setUserData(fallback);
     }
   };
 
@@ -156,6 +171,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         workoutsCompleted: {},
         waterIntake: {},
         weightLog: {},
+        moodWins: {},
+        dailyMode: {},
+        groceryChecked: {},
       },
     };
 

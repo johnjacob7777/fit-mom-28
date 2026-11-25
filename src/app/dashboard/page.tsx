@@ -694,6 +694,7 @@ export default function DashboardPage() {
                                     isPlaying
                                     isGentle={isGentleModeActive}
                                     compact
+                                    preferVideo
                                   />
                                   {ex.formCues?.map((c, idx) => (
                                     <p key={idx}>• {c}</p>
@@ -784,6 +785,7 @@ export default function DashboardPage() {
                                     isPlaying
                                     isGentle={isGentleModeActive}
                                     compact
+                                    preferVideo
                                   />
 
                                   <div className="space-y-1 text-plum/85">
@@ -865,6 +867,7 @@ export default function DashboardPage() {
                                     isPlaying
                                     isGentle={isGentleModeActive}
                                     compact
+                                    preferVideo
                                   />
                                   {ex.formCues?.map((c, idx) => (
                                     <p key={idx}>• {c}</p>

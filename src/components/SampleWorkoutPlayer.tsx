@@ -245,6 +245,7 @@ export default function SampleWorkoutPlayer() {
                         isPlaying
                         isGentle={sampleGentle}
                         compact
+                        preferVideo
                       />
                     )}
                   </div>

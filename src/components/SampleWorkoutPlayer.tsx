@@ -6,8 +6,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import GuidedWorkoutPlayer from "@/components/GuidedWorkoutPlayer";
+import ExerciseDemoDisplay from "@/components/ExerciseDemoDisplay";
 import { WorkoutDay } from "@/lib/planGenerator";
-import { ChevronRight, PlayCircle, ListChecks, Sparkles } from "lucide-react";
+import { ChevronRight, PlayCircle, ListChecks, Sparkles, Video } from "lucide-react";
 
 const SAMPLE_WORKOUT: WorkoutDay = {
   day: 1,
@@ -109,6 +110,7 @@ const SAMPLE_WORKOUT: WorkoutDay = {
 export default function SampleWorkoutPlayer() {
   const [view, setView] = useState<"interactive" | "overview">("interactive");
   const [sampleGentle, setSampleGentle] = useState<boolean>(true);
+  const [demoPreviewName, setDemoPreviewName] = useState<string>("Supported Chair Squats");
 
   return (
     <div className="card-soft text-left space-y-6 border-2 border-blush-200 shadow-soft-md">
@@ -199,29 +201,55 @@ export default function SampleWorkoutPlayer() {
               <span className="w-2 h-2 rounded-full bg-sage-400" /> Part 2: 3 Simple Movements (2 Rounds)
             </p>
             <div className="space-y-2.5 bg-cream-50 p-4 rounded-xl border border-peach-100 text-sm">
-              {SAMPLE_WORKOUT.exercises.map((ex, i) => (
-                <div
-                  key={ex.name}
-                  className={`flex justify-between items-start gap-2 ${
-                    i > 0 ? "pt-2.5 border-t border-peach-100/70" : ""
-                  }`}
-                >
-                  <div>
-                    <span className="font-semibold text-plum block">
-                      {i + 1}. {ex.name}
-                    </span>
-                    <span className="text-xs text-plum/65 block mt-0.5">
-                      {ex.formCues?.[0]}
-                    </span>
-                    <span className="text-[11px] text-sage-700 block mt-0.5 font-medium">
-                      Breath: {ex.breathingCue}
-                    </span>
+              {SAMPLE_WORKOUT.exercises.map((ex, i) => {
+                const isShowing = demoPreviewName === ex.name;
+                return (
+                  <div
+                    key={ex.name}
+                    className={`space-y-3 ${
+                      i > 0 ? "pt-3 border-t border-peach-100/70" : ""
+                    }`}
+                  >
+                    <div className="flex justify-between items-start gap-2">
+                      <div>
+                        <span className="font-semibold text-plum block">
+                          {i + 1}. {ex.name}
+                        </span>
+                        <span className="text-xs text-plum/65 block mt-0.5">
+                          {ex.formCues?.[0]}
+                        </span>
+                        <span className="text-[11px] text-sage-700 block mt-0.5 font-medium">
+                          Breath: {ex.breathingCue}
+                        </span>
+                      </div>
+                      <div className="flex flex-col items-end gap-1.5 shrink-0">
+                        <span className="text-plum/80 font-semibold text-xs bg-white px-2.5 py-1 rounded-lg border border-peach-200">
+                          {ex.duration}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setDemoPreviewName(isShowing ? "" : ex.name)
+                          }
+                          className="inline-flex items-center gap-1 text-[11px] font-bold text-plum bg-peach-100 hover:bg-peach-200 px-2.5 py-1 rounded-lg transition-colors"
+                        >
+                          <Video className="w-3 h-3" />
+                          {isShowing ? "Hide Demo" : "Watch Demo"}
+                        </button>
+                      </div>
+                    </div>
+
+                    {isShowing && (
+                      <ExerciseDemoDisplay
+                        exerciseName={ex.name}
+                        isPlaying
+                        isGentle={sampleGentle}
+                        compact
+                      />
+                    )}
                   </div>
-                  <span className="text-plum/80 font-semibold text-xs shrink-0 bg-white px-2.5 py-1 rounded-lg border border-peach-200">
-                    {ex.duration}
-                  </span>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 

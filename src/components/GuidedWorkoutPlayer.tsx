@@ -6,6 +6,7 @@
 // =============================================================
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Exercise, WorkoutDay, enrichExercise } from "@/lib/planGenerator";
+import ExerciseDemoDisplay from "@/components/ExerciseDemoDisplay";
 import {
   Play,
   Pause,
@@ -20,6 +21,8 @@ import {
   Sparkles,
   CheckCircle2,
   Droplets,
+  Mic,
+  MicOff,
 } from "lucide-react";
 
 interface SessionStep {
@@ -87,6 +90,7 @@ export default function GuidedWorkoutPlayer({
 }: GuidedWorkoutPlayerProps) {
   const [mode, setMode] = useState<"guided" | "simple">("guided");
   const [soundOn, setSoundOn] = useState<boolean>(true);
+  const [voiceOn, setVoiceOn] = useState<boolean>(false);
   const [showGentleTip, setShowGentleTip] = useState<boolean>(isGentleMode);
 
   // Sync gentle tip display when parent gentle mode toggles
@@ -190,6 +194,37 @@ export default function GuidedWorkoutPlayer({
   }, [workout.day, workout.week, steps, targetMinutes]);
 
   const currentStep = steps[stepIndex] || steps[0];
+
+  // Voice Coach speaker (Web Speech API, completely free & safe for sleeping babies when muted)
+  const speakPrompt = useCallback((text: string) => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+    try {
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.rate = 0.94;
+      utter.pitch = 1.02;
+      window.speechSynthesis.speak(utter);
+    } catch {
+      // Speech synthesis unavailable; ignore cleanly
+    }
+  }, []);
+
+  useEffect(() => {
+    if (mode !== "guided" || !isRunning || !voiceOn || sessionFinished || !currentStep) {
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+      return;
+    }
+    const cueText = currentStep.formCues?.[0] || currentStep.breathingCue;
+    speakPrompt(`${currentStep.title}. ${cueText}`);
+
+    return () => {
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, [mode, isRunning, voiceOn, sessionFinished, currentStep, speakPrompt]);
 
   const goToStep = useCallback(
     (nextIdx: number, keepRunning = false) => {
@@ -328,22 +363,45 @@ export default function GuidedWorkoutPlayer({
           </button>
         </div>
 
-        <button
-          type="button"
-          onClick={() => setSoundOn(!soundOn)}
-          className="inline-flex items-center gap-1 text-[11px] font-semibold text-plum/70 hover:text-plum bg-white px-2.5 py-1.5 rounded-lg border border-peach-200 transition-colors"
-          title={soundOn ? "Mute gentle transition chime" : "Enable gentle transition chime"}
-        >
-          {soundOn ? (
-            <>
-              <Volume2 className="w-3.5 h-3.5 text-sage-600" /> Chime On
-            </>
-          ) : (
-            <>
-              <VolumeX className="w-3.5 h-3.5 text-plum/40" /> Muted
-            </>
-          )}
-        </button>
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => setVoiceOn(!voiceOn)}
+            className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg border transition-colors ${
+              voiceOn
+                ? "bg-plum text-white border-plum"
+                : "bg-white text-plum/70 hover:text-plum border-peach-200"
+            }`}
+            title={voiceOn ? "Turn off spoken voice coach" : "Turn on spoken voice coach"}
+          >
+            {voiceOn ? (
+              <>
+                <Mic className="w-3.5 h-3.5" /> Voice Coach On
+              </>
+            ) : (
+              <>
+                <MicOff className="w-3.5 h-3.5 text-plum/45" /> Voice Off
+              </>
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setSoundOn(!soundOn)}
+            className="inline-flex items-center gap-1 text-[11px] font-semibold text-plum/70 hover:text-plum bg-white px-2.5 py-1.5 rounded-lg border border-peach-200 transition-colors"
+            title={soundOn ? "Mute gentle transition chime" : "Enable gentle transition chime"}
+          >
+            {soundOn ? (
+              <>
+                <Volume2 className="w-3.5 h-3.5 text-sage-600" /> Chime On
+              </>
+            ) : (
+              <>
+                <VolumeX className="w-3.5 h-3.5 text-plum/40" /> Muted
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Mode Body */}
@@ -444,6 +502,14 @@ export default function GuidedWorkoutPlayer({
                   </div>
                 </div>
               </div>
+
+              {/* Visual Video / Animated Biomechanics Demo */}
+              <ExerciseDemoDisplay
+                exerciseName={currentStep.title}
+                isPlaying={isRunning}
+                isGentle={isGentleMode}
+                compact={compact}
+              />
 
               {/* Form Cues & Breathing Tip */}
               <div className="grid sm:grid-cols-2 gap-3 text-xs">

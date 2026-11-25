@@ -10,7 +10,6 @@ import { useAuth, MoodWinEntry } from "@/context/AuthContext";
 import {
   Plan,
   WorkoutDay,
-  Exercise,
   WEEK_THEMES,
   enrichExercise,
   getExpressRoutine,
@@ -18,6 +17,7 @@ import {
   getGentleSwap,
 } from "@/lib/planGenerator";
 import GuidedWorkoutPlayer from "@/components/GuidedWorkoutPlayer";
+import ExerciseDemoDisplay from "@/components/ExerciseDemoDisplay";
 import MealsAndGroceryTab from "@/components/MealsAndGroceryTab";
 import ProgressAndWinsTab from "@/components/ProgressAndWinsTab";
 import {
@@ -43,6 +43,7 @@ import {
   Trophy,
   LayoutList,
   ShoppingBasket,
+  Video,
 } from "lucide-react";
 
 type DashboardTab = "today" | "roadmap" | "meals" | "progress";
@@ -687,7 +688,13 @@ export default function DashboardPage() {
                                 </span>
                               </button>
                               {isOpen && (
-                                <div className="px-4 pb-3.5 pt-1 text-xs text-plum/80 border-t border-peach-100/80 space-y-1">
+                                <div className="px-4 pb-3.5 pt-2 text-xs text-plum/80 border-t border-peach-100/80 space-y-2.5 bg-white/50">
+                                  <ExerciseDemoDisplay
+                                    exerciseName={ex.name}
+                                    isPlaying
+                                    isGentle={isGentleModeActive}
+                                    compact
+                                  />
                                   {ex.formCues?.map((c, idx) => (
                                     <p key={idx}>• {c}</p>
                                   ))}
@@ -756,9 +763,11 @@ export default function DashboardPage() {
                                     onClick={() =>
                                       setExpandedExerciseKey(isOpen ? null : key)
                                     }
-                                    className="w-7 h-7 rounded-lg bg-white border border-peach-200 flex items-center justify-center text-plum/70"
-                                    aria-label="Expand exercise details"
+                                    className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-lg bg-peach-100 hover:bg-peach-200 text-plum transition-colors"
+                                    aria-label="Toggle visual exercise demo"
                                   >
+                                    <Video className="w-3 h-3" />
+                                    <span className="hidden sm:inline">{isOpen ? "Hide" : "Watch Demo"}</span>
                                     {isOpen ? (
                                       <ChevronUp className="w-3.5 h-3.5" />
                                     ) : (
@@ -769,7 +778,14 @@ export default function DashboardPage() {
                               </div>
 
                               {isOpen && (
-                                <div className="px-4 pb-4 pt-2 border-t border-peach-200/60 bg-white/60 space-y-2.5 text-xs">
+                                <div className="px-4 pb-4 pt-3 border-t border-peach-200/60 bg-white/60 space-y-3 text-xs">
+                                  <ExerciseDemoDisplay
+                                    exerciseName={ex.name}
+                                    isPlaying
+                                    isGentle={isGentleModeActive}
+                                    compact
+                                  />
+
                                   <div className="space-y-1 text-plum/85">
                                     <span className="font-bold text-[10px] uppercase tracking-wider text-plum/60 block">
                                       How to do it safely:
@@ -843,7 +859,13 @@ export default function DashboardPage() {
                                 </span>
                               </button>
                               {isOpen && (
-                                <div className="px-4 pb-3.5 pt-1 text-xs text-plum/80 border-t border-peach-100/80 space-y-1">
+                                <div className="px-4 pb-3.5 pt-2 text-xs text-plum/80 border-t border-peach-100/80 space-y-2.5 bg-white/50">
+                                  <ExerciseDemoDisplay
+                                    exerciseName={ex.name}
+                                    isPlaying
+                                    isGentle={isGentleModeActive}
+                                    compact
+                                  />
                                   {ex.formCues?.map((c, idx) => (
                                     <p key={idx}>• {c}</p>
                                   ))}

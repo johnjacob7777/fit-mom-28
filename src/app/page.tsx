@@ -20,6 +20,8 @@ import {
   Moon,
   Utensils,
   X,
+  BookOpen,
+  Download,
 } from "lucide-react";
 
 export default function LandingPage() {
@@ -314,6 +316,39 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ───────── FREE BONUS HANDBOOK (LEAD MAGNET / BUNDLE) ───────── */}
+      <section className="px-6 py-12 max-w-4xl mx-auto">
+        <div className="card-soft border-2 border-peach-200 bg-gradient-to-br from-peach-50/80 via-white to-blush-50/60 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="space-y-2.5 text-center md:text-left">
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider bg-plum text-white px-3 py-1 rounded-full">
+              <BookOpen className="w-3.5 h-3.5" /> Free Bonus Included (Or Grab Free Now)
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-heading font-bold text-plum">
+              The Exhausted Mom&apos;s 7-Day Comeback Handbook
+            </h2>
+            <p className="text-sm text-plum/75 max-w-xl leading-relaxed">
+              Get our printable 5-chapter companion eBook free: the <strong>3-Speed Broken-Sleep Rule</strong>, <strong>60-Second Diastasis Belly Check</strong>, <strong>&ldquo;Mommy Thumb&rdquo; forearm trick</strong>, <strong>one-stove family meal bases</strong>, and a fridge tracker.
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row md:flex-col gap-2.5 shrink-0 w-full md:w-auto">
+            <a
+              href="/fit-mom-20-comeback-handbook.pdf"
+              download="Fit-Mom-20-Comeback-Handbook.pdf"
+              className="btn-primary py-3 px-5 text-xs sm:text-sm"
+            >
+              <Download className="w-4 h-4" /> Download Free PDF
+            </a>
+            <Link
+              href="/handbook"
+              className="btn-secondary py-2.5 px-5 text-xs sm:text-sm text-center"
+            >
+              <BookOpen className="w-4 h-4" /> Read Online Free
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* ───────── BUILT FOR REAL MOM LIFE (WHAT'S INSIDE) ───────── */}
       <section className="px-6 py-16 max-w-5xl mx-auto">
         <div className="text-center mb-10">
@@ -546,6 +581,7 @@ export default function LandingPage() {
                   "North/South Indian, All-India & Global meals scaled 1×–4× for family",
                   "1-tap gentle swaps, 60-sec diastasis belly check & nursing water goal",
                   "Phone Home-Screen app install + daily Google/Apple calendar reminder",
+                  "BONUS FREE eBook: Exhausted Mom's 7-Day Comeback Handbook (PDF)",
                 ].map((feat) => (
                   <li key={feat} className="flex items-start gap-2.5">
                     <CheckCircle2 className="w-4 h-4 text-sage-500 shrink-0 mt-0.5" />

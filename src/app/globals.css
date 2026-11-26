@@ -60,6 +60,10 @@ h1, h2, h3, h4, .font-heading {
 }
 
 @media print {
+  @page {
+    size: A4;
+    margin: 14mm;
+  }
   header,
   .no-print,
   iframe {
@@ -67,9 +71,19 @@ h1, h2, h3, h4, .font-heading {
   }
   body {
     background: #ffffff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
   .card-soft {
     box-shadow: none !important;
-    border-color: #dddddd !important;
+    border-color: #f3d7c8 !important;
+  }
+  .print-page-break {
+    break-before: page;
+    page-break-before: always;
+  }
+  .print-avoid-break {
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
 }

@@ -18,6 +18,7 @@ import {
   Clock,
   Utensils,
   Heart,
+  BookOpen,
 } from "lucide-react";
 
 export default function CheckoutPage() {
@@ -197,6 +198,19 @@ export default function CheckoutPage() {
               </li>
             ))}
           </ul>
+
+          {/* Bundled Free Bonus eBook Highlight */}
+          <div className="bg-peach-50 border border-peach-200 rounded-xl p-3 mb-5 text-xs text-plum flex items-start gap-2.5">
+            <BookOpen className="w-4 h-4 text-plum shrink-0 mt-0.5" />
+            <div>
+              <strong className="block">
+                Included Free Bonus eBook: 7-Day Comeback Handbook
+              </strong>
+              <span className="text-plum/75">
+                Instant PDF &amp; printable fridge tracker bundled inside your dashboard.
+              </span>
+            </div>
+          </div>
 
           {error && (
             <div className="text-xs bg-peach-100 border border-peach-300 text-plum p-3.5 rounded-xl mb-4">

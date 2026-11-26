@@ -55,6 +55,7 @@ import {
   Square,
   Baby,
   Moon,
+  BookOpen,
 } from "lucide-react";
 
 type DashboardTab = "today" | "roadmap" | "meals" | "progress";
@@ -494,6 +495,15 @@ export default function DashboardPage() {
           </div>
 
           <div className="flex items-center gap-2">
+            <Link
+              href="/handbook"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-plum bg-peach-100/80 hover:bg-peach-200 px-3 py-2 rounded-xl border border-peach-200 transition-colors"
+              title="Open or download your Free Mom Comeback eBook"
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Free eBook</span>
+            </Link>
+
             <Link
               href="/settings"
               className="inline-flex items-center gap-1.5 text-xs font-semibold text-plum/80 hover:text-plum bg-cream-50 hover:bg-peach-100 px-3 py-2 rounded-xl border border-peach-200 transition-colors"

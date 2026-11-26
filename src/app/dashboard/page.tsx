@@ -11,6 +11,8 @@ import {
   Plan,
   WorkoutDay,
   WEEK_THEMES,
+  FoodRegion,
+  buildRegionalMeals,
   enrichExercise,
   getExpressRoutine,
   getPostureReliefRoutine,
@@ -133,6 +135,7 @@ export default function DashboardPage() {
             exerciseLocation: "home_no_equipment",
             healthIssues: ["none"],
             foodPreference: "vegetarian",
+            foodRegion: "indian_balanced",
           },
         }),
       })
@@ -163,6 +166,7 @@ export default function DashboardPage() {
   const [dismissedRebootBanner, setDismissedRebootBanner] = useState<boolean>(false);
   const quizMinutes = Number((userData?.quizAnswers as any)?.exerciseMinutes) || 20;
   const foodPreference = String((userData?.quizAnswers as any)?.foodPreference || "vegetarian");
+  const foodRegion = String((userData?.quizAnswers as any)?.foodRegion || "indian_balanced") as FoodRegion;
   const isBreastfeeding = Boolean((userData?.quizAnswers as any)?.isBreastfeeding);
   const hasBabyUnder1 = Boolean((userData?.quizAnswers as any)?.hasBabyUnder1);
   const deliveryType = String((userData?.quizAnswers as any)?.deliveryType || "not_applicable");
@@ -278,6 +282,16 @@ export default function DashboardPage() {
     if (!user) return;
     await updateUserDocument({
       "progress.portionMultiplier": next,
+    });
+  };
+
+  const handleChangeFoodRegion = async (nextRegion: FoodRegion) => {
+    if (!user) return;
+    const nextMeals = buildRegionalMeals(foodPreference, nextRegion);
+    await updateUserDocument({
+      "quizAnswers.foodRegion": nextRegion,
+      "plan.meals": nextMeals,
+      "progress.swappedMeals": {},
     });
   };
 
@@ -1427,6 +1441,7 @@ export default function DashboardPage() {
             meals={plan.meals}
             currentDayIndex={activeDayNumber - 1}
             foodPreference={foodPreference}
+            foodRegion={foodRegion}
             isBreastfeeding={isBreastfeeding}
             portionMultiplier={portionMultiplier}
             swappedMeals={userData?.progress?.swappedMeals || {}}
@@ -1436,6 +1451,7 @@ export default function DashboardPage() {
             onSwapMeal={handleSwapMeal}
             onUpdateCustomGroceries={handleUpdateCustomGroceries}
             onChangePortionMultiplier={handleChangePortionMultiplier}
+            onChangeFoodRegion={handleChangeFoodRegion}
           />
         )}
 

@@ -21,12 +21,14 @@ export async function POST(request: NextRequest) {
       currentWeight: quizAnswers.currentWeight || "",
       goalWeight: quizAnswers.goalWeight || "",
       hasBabyUnder1: quizAnswers.hasBabyUnder1 || false,
+      deliveryType: quizAnswers.deliveryType || "not_applicable",
       isBreastfeeding: quizAnswers.isBreastfeeding || false,
       restDay: quizAnswers.restDay || "Sunday",
       exerciseMinutes: quizAnswers.exerciseMinutes || 20,
       exerciseLocation: quizAnswers.exerciseLocation || "home_no_equipment",
       healthIssues: quizAnswers.healthIssues || ["none"],
       foodPreference: quizAnswers.foodPreference || "vegetarian",
+      foodRegion: quizAnswers.foodRegion || "indian_balanced",
     };
 
     const plan = generatePlan(answers);

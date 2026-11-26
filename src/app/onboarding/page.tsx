@@ -5,6 +5,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { FOOD_REGIONS, FoodRegion } from "@/lib/planGenerator";
 import {
   ArrowLeft,
   ArrowRight,
@@ -49,6 +50,7 @@ export default function OnboardingPage() {
   const [exerciseLocation, setExerciseLocation] = useState("home_no_equipment");
   const [healthIssues, setHealthIssues] = useState<string[]>(["none"]);
   const [foodPreference, setFoodPreference] = useState("vegetarian");
+  const [foodRegion, setFoodRegion] = useState<FoodRegion>("indian_balanced");
 
   const [currentStep, setCurrentStep] = useState(0);
   const [saving, setSaving] = useState(false);
@@ -67,6 +69,7 @@ export default function OnboardingPage() {
       if (q.exerciseLocation) setExerciseLocation(q.exerciseLocation);
       if (Array.isArray(q.healthIssues)) setHealthIssues(q.healthIssues);
       if (q.foodPreference) setFoodPreference(q.foodPreference);
+      if (q.foodRegion) setFoodRegion(q.foodRegion);
     }
   }, [userData]);
 
@@ -144,6 +147,7 @@ export default function OnboardingPage() {
       exerciseLocation,
       healthIssues,
       foodPreference,
+      foodRegion,
     };
 
     try {
@@ -667,6 +671,37 @@ export default function OnboardingPage() {
                     </button>
                   );
                 })}
+              </div>
+
+              {/* Regional Cuisine Style */}
+              <div className="pt-2 text-left space-y-2.5">
+                <span className="block text-xs font-bold uppercase tracking-wider text-plum/70">
+                  Kitchen &amp; Regional Style
+                </span>
+                <div className="grid sm:grid-cols-2 gap-2.5">
+                  {FOOD_REGIONS.map((reg) => {
+                    const selected = foodRegion === reg.id;
+                    return (
+                      <button
+                        key={reg.id}
+                        type="button"
+                        onClick={() => setFoodRegion(reg.id)}
+                        className={`p-3.5 rounded-2xl border-2 text-left transition-all ${
+                          selected
+                            ? "border-plum bg-peach-100/70 shadow-xs"
+                            : "border-peach-200 bg-cream-50 hover:border-peach-300"
+                        }`}
+                      >
+                        <span className="block font-heading font-bold text-sm text-plum">
+                          {reg.label}
+                        </span>
+                        <span className="block text-[11px] text-plum/70 mt-0.5 leading-snug">
+                          {reg.desc}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           )}

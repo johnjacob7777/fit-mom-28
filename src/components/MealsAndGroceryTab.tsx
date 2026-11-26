@@ -6,6 +6,8 @@
 import { useState, useMemo } from "react";
 import {
   MealDay,
+  FOOD_REGIONS,
+  FoodRegion,
   getMealGuidance,
   getAlternativeMeal,
   getQuickBusyNightMeal,
@@ -40,6 +42,7 @@ interface MealsAndGroceryTabProps {
   meals: MealDay[];
   currentDayIndex: number; // 0-27
   foodPreference: string;
+  foodRegion?: FoodRegion;
   isBreastfeeding?: boolean;
   portionMultiplier?: 1 | 2 | 4;
   swappedMeals?: Record<string, Record<string, string>>;
@@ -53,6 +56,7 @@ interface MealsAndGroceryTabProps {
   ) => void;
   onUpdateCustomGroceries: (items: string[]) => void;
   onChangePortionMultiplier?: (multiplier: 1 | 2 | 4) => void;
+  onChangeFoodRegion?: (region: FoodRegion) => void;
 }
 
 function toSlug(text: string): string {
@@ -63,6 +67,7 @@ export default function MealsAndGroceryTab({
   meals,
   currentDayIndex,
   foodPreference,
+  foodRegion = "indian_balanced",
   isBreastfeeding = false,
   portionMultiplier = 1,
   swappedMeals = {},
@@ -72,6 +77,7 @@ export default function MealsAndGroceryTab({
   onSwapMeal,
   onUpdateCustomGroceries,
   onChangePortionMultiplier,
+  onChangeFoodRegion,
 }: MealsAndGroceryTabProps) {
   const initialWeek = Math.floor(currentDayIndex / 7);
   const [selectedWeek, setSelectedWeek] = useState<number>(initialWeek);
@@ -82,11 +88,18 @@ export default function MealsAndGroceryTab({
   const [expandedRecipeSlot, setExpandedRecipeSlot] = useState<string | null>(null);
   const [customInput, setCustomInput] = useState<string>("");
   const [localPortion, setLocalPortion] = useState<1 | 2 | 4>(portionMultiplier);
+  const [localRegion, setLocalRegion] = useState<FoodRegion>(foodRegion);
   const activePortion = onChangePortionMultiplier ? portionMultiplier : localPortion;
+  const activeRegion = onChangeFoodRegion ? foodRegion : localRegion;
 
   const handleSelectPortion = (next: 1 | 2 | 4) => {
     setLocalPortion(next);
     onChangePortionMultiplier?.(next);
+  };
+
+  const handleSelectRegion = (next: FoodRegion) => {
+    setLocalRegion(next);
+    onChangeFoodRegion?.(next);
   };
 
   const dayIndex = (selectedWeek * 7 + selectedDayOffset) % Math.max(1, meals.length);
@@ -120,13 +133,14 @@ export default function MealsAndGroceryTab({
   const groceryCategories = useMemo(() => {
     const base = getWeeklyGroceryList(
       weekMeals.length ? weekMeals : meals.slice(0, 7),
-      foodPreference
+      foodPreference,
+      activeRegion
     );
     if (customGroceries.length > 0) {
       return [...base, { category: "My Custom Items", items: customGroceries }];
     }
     return base;
-  }, [weekMeals, meals, foodPreference, customGroceries]);
+  }, [weekMeals, meals, foodPreference, activeRegion, customGroceries]);
 
   const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -146,10 +160,12 @@ export default function MealsAndGroceryTab({
       : activePortion === 2
       ? "Partner & Me (2×)"
       : "Full Family (4×)";
+  const regionLabel =
+    FOOD_REGIONS.find((r) => r.id === activeRegion)?.shortLabel || "All-India";
 
   const handleCopyGroceryList = async () => {
     const lines = [
-      `Fit Mom 20 — Week ${selectedWeek + 1} Grocery List (${portionLabel}):`,
+      `Fit Mom 20 — Week ${selectedWeek + 1} Grocery List (${regionLabel} • ${portionLabel}):`,
       "",
       ...groceryCategories.flatMap((cat) => [
         `${cat.category}:`,
@@ -226,7 +242,7 @@ export default function MealsAndGroceryTab({
               <Utensils className="w-5 h-5 text-plum" /> Simple Daily Meals &amp; 3-Step Recipes
             </h2>
             <p className="text-xs text-plum/65 mt-0.5">
-              Swap any meal with one tap or expand the 3-step recipe &amp; kid-friendly prep notes.
+              Switch kitchen region, scale family portions, or tap 10m / Swap anytime.
             </p>
           </div>
 
@@ -279,6 +295,29 @@ export default function MealsAndGroceryTab({
               <Printer className="w-3.5 h-3.5" /> Print Sheet
             </button>
           </div>
+        </div>
+
+        {/* Regional Cuisine Selector */}
+        <div className="flex flex-wrap items-center gap-1.5 no-print bg-cream-50 p-2 rounded-2xl border border-peach-200/70">
+          <span className="text-[11px] font-bold text-plum/65 px-2">Kitchen Region:</span>
+          {FOOD_REGIONS.map((reg) => {
+            const active = activeRegion === reg.id;
+            return (
+              <button
+                key={reg.id}
+                type="button"
+                onClick={() => handleSelectRegion(reg.id)}
+                className={`text-[11px] font-bold px-3 py-1 rounded-xl transition-all ${
+                  active
+                    ? "bg-plum text-white shadow-xs"
+                    : "bg-white text-plum/75 border border-peach-200 hover:border-peach-300"
+                }`}
+                title={reg.desc}
+              >
+                {reg.shortLabel}
+              </button>
+            );
+          })}
         </div>
 
         {/* 7 Day Pills */}
@@ -334,7 +373,7 @@ export default function MealsAndGroceryTab({
                           onSwapMeal(
                             dayIndex,
                             item.slot,
-                            getQuickBusyNightMeal(item.slot, foodPreference, item.value)
+                            getQuickBusyNightMeal(item.slot, foodPreference, item.value, activeRegion)
                           )
                         }
                         className="no-print text-[10px] font-bold bg-sage-100 hover:bg-sage-200 text-sage-800 px-2 py-0.5 rounded-full inline-flex items-center gap-1 transition-colors"
@@ -348,7 +387,7 @@ export default function MealsAndGroceryTab({
                           onSwapMeal(
                             dayIndex,
                             item.slot,
-                            getAlternativeMeal(item.slot, foodPreference, item.value)
+                            getAlternativeMeal(item.slot, foodPreference, item.value, activeRegion)
                           )
                         }
                         className="no-print text-[10px] font-bold bg-peach-100 hover:bg-peach-200 text-plum px-2 py-0.5 rounded-full inline-flex items-center gap-1 transition-colors"

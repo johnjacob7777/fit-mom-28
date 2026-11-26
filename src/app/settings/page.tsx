@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
+import { FOOD_REGIONS, FoodRegion } from "@/lib/planGenerator";
 import DailyReminderCard from "@/components/DailyReminderCard";
 import {
   ArrowLeft,
@@ -25,6 +26,7 @@ import {
   Calendar,
   CreditCard,
   PauseCircle,
+  Utensils,
 } from "lucide-react";
 
 export default function SettingsPage() {
@@ -42,6 +44,7 @@ export default function SettingsPage() {
   const [restDay, setRestDay] = useState<string>("Sunday");
   const [healthIssues, setHealthIssues] = useState<string[]>(["none"]);
   const [foodPreference, setFoodPreference] = useState<string>("vegetarian");
+  const [foodRegion, setFoodRegion] = useState<FoodRegion>("indian_balanced");
 
   const [saving, setSaving] = useState(false);
   const [confirmCancel, setConfirmCancel] = useState(false);
@@ -68,6 +71,7 @@ export default function SettingsPage() {
       if (q.restDay) setRestDay(String(q.restDay));
       if (Array.isArray(q.healthIssues)) setHealthIssues(q.healthIssues);
       if (q.foodPreference) setFoodPreference(q.foodPreference);
+      if (q.foodRegion) setFoodRegion(q.foodRegion);
     }
   }, [userData]);
 
@@ -103,6 +107,7 @@ export default function SettingsPage() {
       restDay,
       healthIssues,
       foodPreference,
+      foodRegion,
     };
 
     try {
@@ -486,6 +491,35 @@ export default function SettingsPage() {
                     >
                       <Icon className="w-4 h-4" />
                       <span>{diet.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Kitchen / Food Region */}
+            <div>
+              <label className="block text-sm font-bold text-plum mb-2 flex items-center gap-2">
+                <Utensils className="w-4 h-4 text-plum" /> Kitchen &amp; Regional Cuisine Style
+              </label>
+              <div className="grid sm:grid-cols-2 gap-2 text-xs font-semibold">
+                {FOOD_REGIONS.map((reg) => {
+                  const isSelected = foodRegion === reg.id;
+                  return (
+                    <button
+                      key={reg.id}
+                      type="button"
+                      onClick={() => setFoodRegion(reg.id)}
+                      className={`p-3 rounded-xl border-2 text-left transition-all ${
+                        isSelected
+                          ? "border-plum bg-peach-100/70 text-plum"
+                          : "border-peach-200 bg-cream-50 text-plum/65 hover:border-peach-300"
+                      }`}
+                    >
+                      <span className="block font-bold text-plum">{reg.label}</span>
+                      <span className="block text-[10px] font-normal text-plum/65 mt-0.5">
+                        {reg.desc}
+                      </span>
                     </button>
                   );
                 })}

@@ -5,6 +5,7 @@
 import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { IS_DEMO_ENABLED } from "@/lib/appConfig";
 import { CheckCircle2, Sparkles, Heart } from "lucide-react";
 
 function SuccessContent() {
@@ -25,7 +26,14 @@ function SuccessContent() {
       }
 
       try {
-        const isDemoSession = sessionId.startsWith("demo_");
+        const isDemoSession = IS_DEMO_ENABLED && sessionId.startsWith("demo_");
+        let subscriptionId: string | null = null;
+
+        if (sessionId.startsWith("demo_") && !IS_DEMO_ENABLED) {
+          setStatus("Demo mode is disabled in production. Redirecting...");
+          setTimeout(() => router.push("/checkout"), 2000);
+          return;
+        }
 
         if (!isDemoSession) {
           setStatus("Verifying your payment with Stripe...");
@@ -41,6 +49,7 @@ function SuccessContent() {
             setTimeout(() => router.push("/checkout"), 2000);
             return;
           }
+          subscriptionId = verifyData.subscriptionId ?? null;
         } else {
           setStatus("Demo mode active — payment verified! ✅");
         }
@@ -59,8 +68,10 @@ function SuccessContent() {
         setStatus("Saving your plan and preparing your dashboard...");
         await updateUserDocument({
           isPaid: true,
+          subscriptionStatus: "active",
           plan: planData.plan,
           stripeSessionId: sessionId,
+          ...(subscriptionId ? { stripeSubscriptionId: subscriptionId } : {}),
         });
 
         setStatus("All set! Welcome to your dashboard! 🎉");

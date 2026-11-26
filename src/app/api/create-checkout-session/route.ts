@@ -1,5 +1,5 @@
 // =============================================================
-// API: Create Stripe Checkout Session
+// API: Create Stripe Checkout Session (Dynamic Payment Methods)
 // =============================================================
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
@@ -7,14 +7,16 @@ import Stripe from "stripe";
 export async function POST(request: NextRequest) {
   try {
     const stripeKey = process.env.STRIPE_SECRET_KEY;
-    if (!stripeKey) {
+    const priceId = process.env.STRIPE_PRICE_ID;
+
+    if (!stripeKey || !priceId) {
       return NextResponse.json(
-        { error: "Stripe secret key is not configured in .env.local" },
+        { error: "Stripe checkout keys are not configured yet." },
         { status: 500 }
       );
     }
-    const stripe = new Stripe(stripeKey);
 
+    const stripe = new Stripe(stripeKey);
     const { userId, email } = await request.json();
 
     if (!userId || !email) {
@@ -24,30 +26,32 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create a Checkout Session
-    // Stripe hosts the payment page — we just redirect to it
+    // Omitting payment_method_types enables Stripe Dynamic Payment Methods
+    // (Cards, Wallets, UPI, Link, etc. configured in your Stripe Dashboard).
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
       mode: "subscription",
       customer_email: email,
       line_items: [
         {
-          price: process.env.STRIPE_PRICE_ID!,
+          price: priceId,
           quantity: 1,
         },
       ],
-      // Where to send the user after payment
       success_url: `${request.nextUrl.origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${request.nextUrl.origin}/checkout`,
-      // Store our userId so we can link the payment to the user
       metadata: {
         userId,
+      },
+      subscription_data: {
+        metadata: {
+          userId,
+        },
       },
     });
 
     return NextResponse.json({ sessionId: session.id });
   } catch (error: unknown) {
-    console.error("Stripe error:", error);
+    console.error("Stripe checkout error:", error);
     const message =
       error instanceof Error ? error.message : "Internal server error";
     return NextResponse.json({ error: message }, { status: 500 });

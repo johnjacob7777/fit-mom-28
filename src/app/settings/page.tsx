@@ -136,6 +136,19 @@ export default function SettingsPage() {
   const handleCancelMembership = async () => {
     setCancelling(true);
     try {
+      const res = await fetch("/api/cancel-subscription", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          stripeSubscriptionId: userData?.stripeSubscriptionId,
+          stripeSessionId: userData?.stripeSessionId,
+        }),
+      });
+      if (!res.ok) {
+        alert("Could not cancel your Stripe billing yet. Please try again or contact support.");
+        return;
+      }
+
       await updateUserDocument({
         isPaid: false,
         subscriptionStatus: "cancelled",
@@ -144,6 +157,7 @@ export default function SettingsPage() {
       router.push("/checkout");
     } catch (err) {
       console.error("Error updating subscription status:", err);
+      alert("Something went wrong while cancelling. Please try again.");
     } finally {
       setCancelling(false);
     }

@@ -139,6 +139,7 @@ export default function MealsAndGroceryTab({
         }),
         "",
       ]),
+      "— Planned with Fit Mom 20 (https://fit-mom-28-aj.vercel.app)",
     ].join("\n");
 
     try {

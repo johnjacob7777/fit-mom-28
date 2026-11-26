@@ -395,18 +395,29 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* Clearly Marked Placeholder: What Moms Say */}
-        <div className="mt-14 card-soft border-dashed border-2 border-peach-300 text-center bg-peach-50/50 p-8">
+        {/* Founding Moms Invitation */}
+        <div className="mt-14 card-soft border border-peach-200 text-center bg-peach-50/70 p-8">
           <Heart className="w-8 h-8 text-blush-400 mx-auto mb-3" />
           <h3 className="font-heading font-bold text-2xl text-plum mb-2">
-            What Moms Say
+            Built With Real Moms, Step by Step
           </h3>
-          <p className="text-sm text-plum/70 max-w-lg mx-auto italic mb-3">
-            [Reviews from real moms using Fit Mom 20 will be added here as our community grows. We believe in 100% honest, genuine feedback with zero fake numbers or paid reviews.]
+          <p className="text-sm text-plum/75 max-w-lg mx-auto mb-5 leading-relaxed">
+            We never post invented testimonials or inflated numbers. Try your personalized 20-minute routine and share honest feedback anytime — real stories from founding moms will be featured here.
           </p>
-          <span className="inline-block text-xs font-semibold uppercase tracking-wider text-plum/50 bg-white px-3 py-1 rounded-full border border-peach-200">
-            Real Community Section Placeholder
-          </span>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <Link
+              href="/signup"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-plum hover:bg-plum-500 px-4 py-2 rounded-full transition-colors"
+            >
+              Start Your Routine <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+            <Link
+              href="/contact"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-plum bg-white hover:bg-peach-100 px-4 py-2 rounded-full border border-peach-200 transition-colors"
+            >
+              Share Feedback
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -449,7 +460,7 @@ export default function LandingPage() {
                 <span className="text-lg font-sans font-normal text-plum/60">/month</span>
               </p>
               <p className="text-xs text-plum/60 mb-6">
-                (Placeholder pricing — cancel anytime in 1 click)
+                Billed monthly • Cancel anytime in 1 click
               </p>
 
               <ul className="space-y-3 text-left text-sm text-plum/85 mb-8">

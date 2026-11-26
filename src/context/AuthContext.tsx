@@ -8,6 +8,7 @@ import { onAuthStateChanged, signOut as firebaseSignOut } from "firebase/auth";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { Exercise } from "@/lib/planGenerator";
+import { IS_DEMO_ENABLED } from "@/lib/appConfig";
 
 export interface MoodWinEntry {
   mood: string;
@@ -20,6 +21,8 @@ export interface UserData {
   quizCompleted: boolean;
   isPaid: boolean;
   subscriptionStatus?: "active" | "paused" | "cancelled";
+  stripeSessionId?: string;
+  stripeSubscriptionId?: string | null;
   quizAnswers?: Record<string, unknown>;
   plan?: Record<string, unknown>;
   progress?: {
@@ -93,9 +96,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [isDemoMode, setIsDemoMode] = useState(false);
 
-  // Load demo data from localStorage if active
+  // Load demo data from localStorage if active (dev/explicit demo only)
   const loadDemoFromStorage = (): boolean => {
-    if (typeof window === "undefined") return false;
+    if (!IS_DEMO_ENABLED || typeof window === "undefined") return false;
     const storedUser = localStorage.getItem("fitmom_demo_user");
     const storedData = localStorage.getItem("fitmom_demo_userdata");
     if (storedUser && storedData) {
@@ -163,6 +166,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const startDemoSession = (name = "Mama", email = "mom@example.com", directToDashboard = false) => {
+    if (!IS_DEMO_ENABLED) return;
     const demoUserObj: AppUser = {
       uid: "demo_user_" + Date.now(),
       email,

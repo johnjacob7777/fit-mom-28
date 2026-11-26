@@ -13,6 +13,7 @@ import {
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { auth, googleProvider, db } from "@/lib/firebase";
 import { useAuth } from "@/context/AuthContext";
+import { IS_DEMO_ENABLED } from "@/lib/appConfig";
 import { ArrowLeft, Sparkles, HeartHandshake, ShieldCheck } from "lucide-react";
 
 export default function SignupPage() {
@@ -121,19 +122,21 @@ export default function SignupPage() {
           </p>
         </div>
 
-        {/* Demo Mode Quick Access */}
-        <div className="mb-4 bg-peach-100/70 border border-peach-200 rounded-2xl p-4 text-center">
-          <div className="flex items-center justify-center gap-2 text-xs font-semibold uppercase tracking-wider text-plum mb-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-plum" /> Instant Test Preview
+        {/* Demo Mode Quick Access (dev/demo only) */}
+        {IS_DEMO_ENABLED && (
+          <div className="mb-4 bg-peach-100/70 border border-peach-200 rounded-2xl p-4 text-center">
+            <div className="flex items-center justify-center gap-2 text-xs font-semibold uppercase tracking-wider text-plum mb-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-plum" /> Instant Test Preview
+            </div>
+            <button
+              type="button"
+              onClick={handleStartDemo}
+              className="w-full bg-plum text-white font-medium py-2.5 px-4 rounded-xl text-sm hover:bg-plum-500 transition-all shadow-xs"
+            >
+              Explore in Demo Mode (No Setup Required) →
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={handleStartDemo}
-            className="w-full bg-plum text-white font-medium py-2.5 px-4 rounded-xl text-sm hover:bg-plum-500 transition-all shadow-xs"
-          >
-            Explore in Demo Mode (No Setup Required) →
-          </button>
-        </div>
+        )}
 
         {/* Card */}
         <div className="card-soft shadow-soft-md">
@@ -206,13 +209,15 @@ export default function SignupPage() {
               <div className="text-red-700 text-sm bg-red-50 rounded-2xl p-4 border border-red-200">
                 <p className="font-semibold mb-1">Notice:</p>
                 <p className="text-xs">{error}</p>
-                <button
-                  type="button"
-                  onClick={handleStartDemo}
-                  className="mt-2 text-xs font-semibold text-plum underline"
-                >
-                  Switch to instant demo mode instead →
-                </button>
+                {IS_DEMO_ENABLED && (
+                  <button
+                    type="button"
+                    onClick={handleStartDemo}
+                    className="mt-2 text-xs font-semibold text-plum underline"
+                  >
+                    Switch to instant demo mode instead →
+                  </button>
+                )}
               </div>
             )}
 

@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { getStripe } from "@/lib/stripe";
+import { IS_DEMO_ENABLED } from "@/lib/appConfig";
 import { ArrowLeft, CheckCircle2, ShieldCheck, Sparkles, Lock } from "lucide-react";
 
 export default function CheckoutPage() {
@@ -121,15 +122,25 @@ export default function CheckoutPage() {
 
           {error && (
             <div className="text-xs bg-peach-100 border border-peach-300 text-plum p-3.5 rounded-xl mb-4">
-              <p className="font-semibold mb-1">Stripe Checkout Notice:</p>
+              <p className="font-semibold mb-1">Checkout Notice:</p>
               <p className="text-plum/70 mb-2">{error}</p>
-              <button
-                type="button"
-                onClick={() => router.push("/checkout/success?session_id=demo_session_" + Date.now())}
-                className="w-full bg-plum text-white font-semibold py-2 px-3 rounded-lg text-xs hover:bg-plum-500 transition-colors"
-              >
-                Continue in Instant Demo Mode →
-              </button>
+              {IS_DEMO_ENABLED ? (
+                <button
+                  type="button"
+                  onClick={() => router.push("/checkout/success?session_id=demo_session_" + Date.now())}
+                  className="w-full bg-plum text-white font-semibold py-2 px-3 rounded-lg text-xs hover:bg-plum-500 transition-colors"
+                >
+                  Continue in Instant Demo Mode →
+                </button>
+              ) : (
+                <p className="text-plum/80">
+                  Please try again in a moment or{" "}
+                  <Link href="/contact" className="underline font-semibold text-plum">
+                    contact support
+                  </Link>{" "}
+                  if checkout does not open.
+                </p>
+              )}
             </div>
           )}
 
@@ -143,14 +154,16 @@ export default function CheckoutPage() {
             {paying ? "Redirecting to Stripe..." : "Subscribe for ₹499 & Start →"}
           </button>
 
-          {/* Demo simulation shortcut */}
-          <button
-            type="button"
-            onClick={() => router.push("/checkout/success?session_id=demo_session_" + Date.now())}
-            className="w-full mt-3 bg-peach-50 border border-peach-200 text-plum hover:bg-peach-100 font-semibold text-xs py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5"
-          >
-            <Sparkles className="w-3.5 h-3.5" /> Test Payment Simulation (Demo Mode)
-          </button>
+          {/* Demo simulation shortcut (dev/demo only) */}
+          {IS_DEMO_ENABLED && (
+            <button
+              type="button"
+              onClick={() => router.push("/checkout/success?session_id=demo_session_" + Date.now())}
+              className="w-full mt-3 bg-peach-50 border border-peach-200 text-plum hover:bg-peach-100 font-semibold text-xs py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5"
+            >
+              <Sparkles className="w-3.5 h-3.5" /> Test Payment Simulation (Demo Mode)
+            </button>
+          )}
 
           <div className="bg-sage-50 border border-sage-200 rounded-xl p-3 mt-4 text-[11px] text-plum/80 flex items-start gap-2">
             <ShieldCheck className="w-4 h-4 text-sage-600 shrink-0 mt-0.5" />

@@ -12,11 +12,12 @@ export interface QuizAnswers {
   currentWeight: string;
   goalWeight: string;
   hasBabyUnder1: boolean;
+  deliveryType?: "vaginal" | "c_section" | "not_applicable";
   isBreastfeeding?: boolean;
   restDay?: string;           // "Sunday" default, or any day Monday-Sunday
   exerciseMinutes: number;    // 10, 20, or 30
   exerciseLocation: string;   // "home_no_equipment" | "home_light_equipment"
-  healthIssues: string[];     // ["back_pain", "knee_pain", "none", "other"]
+  healthIssues: string[];     // ["back_pain", "knee_pain", "diastasis_recti", "c_section_recovery", "pelvic_heaviness", "other", "none"]
   foodPreference: string;     // "vegetarian" | "non_vegetarian" | "eggs_only"
 }
 
@@ -757,6 +758,42 @@ const GENTLE_EXERCISES: Exercise[] = [
     breathingCue: "Exhale into gentle turn; inhale back to center.",
     gentleVariation: "Do smaller turns with hands resting comfortably on lap.",
   },
+  {
+    name: "Gentle pelvic tilts (deep core)",
+    duration: "10 reps (55s)",
+    seconds: 55,
+    focus: "Diastasis & Scar-Safe Core",
+    formCues: [
+      "Lie on mat with knees bent and feet flat; keep belly soft and ribcage down.",
+      "On exhale, gently hug lower belly inward and soften lower back onto the floor.",
+    ],
+    breathingCue: "Inhale softly into side ribs; exhale flatten back gently without gripping glutes.",
+    gentleVariation: "Do seated on a firm chair, softly tucking tailbone forward and back.",
+  },
+  {
+    name: "Mommy-thumb & wrist relief stretches",
+    duration: "45 seconds",
+    seconds: 45,
+    focus: "Carrying & Wrist Relief",
+    formCues: [
+      "Tuck thumb lightly inside curled fingers and tilt wrist downward gently — stop before any sharp pinch.",
+      "Keep shoulders dropped away from ears while seated or standing.",
+    ],
+    breathingCue: "Long slow exhales to soften forearm tension.",
+    gentleVariation: "Open and close fingers slowly in a soft fan instead of stretching deeper.",
+  },
+  {
+    name: "Wrist tendon gentle glide",
+    duration: "45 seconds",
+    seconds: 45,
+    focus: "Forearm & Thumb Ease",
+    formCues: [
+      "Keep forearm supported on your lap and gently extend and curl wrist smoothly.",
+      "Scoop under baby with whole forearms rather than locking thumbs.",
+    ],
+    breathingCue: "Relax your jaw and breathe steadily through your nose.",
+    gentleVariation: "Shake out fingers gently with tiny wrist circles.",
+  },
 ];
 
 // Combine all exercises into a lookup map for legacy plan enrichment & gentle swaps
@@ -850,9 +887,89 @@ export function getPostureReliefRoutine(): WorkoutDay {
   };
 }
 
-// Exercises to AVOID with specific pain
+/** Built-in Workout-With-Baby-Awake Routine (standing & bedside/mat friendly) */
+export function getBabyAwakeRoutine(): WorkoutDay {
+  return {
+    day: 0,
+    week: 1,
+    weekTheme: "Baby Awake Mode (Hands-Free Friendly)",
+    focusTitle: "Move Beside Baby (Standing & Safe Balance)",
+    dayOfWeek: "Today",
+    isRestDay: false,
+    warmup: [WARMUPS[0], WARMUPS[3]], // March in place + Shoulder rolls
+    exercises: [
+      GENTLE_EXERCISES[9],  // Supported squats (hold chair)
+      GENTLE_EXERCISES[4],  // Standing side leg lifts
+      GENTLE_EXERCISES[0],  // Wall push-ups
+      GENTLE_EXERCISES[11], // Standing hip circles
+    ],
+    cooldown: [COOLDOWNS[5], COOLDOWNS[0]], // Neck rolls + Deep breathing
+  };
+}
+
+/** Built-in 2-Min / 2 AM Feeding Wrist, Neck & Calm Rescue */
+export function getTwoAmRescueRoutine(): WorkoutDay {
+  return {
+    day: 0,
+    week: 1,
+    weekTheme: "2 AM & Feeding Relief",
+    focusTitle: "Quick Mommy-Thumb, Wrist & Shoulder Reset",
+    dayOfWeek: "Today",
+    isRestDay: false,
+    warmup: [WARMUPS[3]], // Shoulder rolls & chest opener
+    exercises: [
+      GENTLE_EXERCISES[15], // Mommy-thumb & wrist relief stretches
+      GENTLE_EXERCISES[16], // Wrist tendon gentle glide
+      GENTLE_EXERCISES[5],  // Seated arm raises & posture reset
+    ],
+    cooldown: [COOLDOWNS[5], COOLDOWNS[0]], // Neck rolls + Deep breathing
+  };
+}
+
+// Exercises to AVOID with specific pain or postpartum core sensitivity
 const KNEE_AVOID = ["Reverse lunges", "Jumping jacks (low impact: step-out jacks)", "Jumping jacks", "Mountain climbers (slow)", "Mountain climbers", "Sumo squats", "Dumbbell lunges"];
 const BACK_AVOID = ["Superman hold", "Bicycle crunches", "Mountain climbers (slow)", "Mountain climbers", "Dumbbell deadlifts (light weight)"];
+const DIASTASIS_OR_CS_AVOID = [
+  "Plank hold",
+  "Side plank (each side)",
+  "Bicycle crunches",
+  "Mountain climbers (slow)",
+  "Inchworms",
+  "Jumping jacks (low impact: step-out jacks)",
+  "Push-ups (on knees if needed)",
+  "Superman hold",
+];
+const PELVIC_AVOID = [
+  "Jumping jacks (low impact: step-out jacks)",
+  "Reverse lunges",
+  "Sumo squats",
+  "Dumbbell lunges",
+];
+
+/** Builds the merged avoid list matching user's health & postpartum flags */
+export function getSafeAvoidList(
+  healthIssues: string[] = [],
+  deliveryType?: string
+): string[] {
+  const avoid = new Set<string>();
+  if (healthIssues.includes("knee_pain")) {
+    KNEE_AVOID.forEach((x) => avoid.add(x));
+  }
+  if (healthIssues.includes("back_pain")) {
+    BACK_AVOID.forEach((x) => avoid.add(x));
+  }
+  if (
+    deliveryType === "c_section" ||
+    healthIssues.includes("c_section_recovery") ||
+    healthIssues.includes("diastasis_recti")
+  ) {
+    DIASTASIS_OR_CS_AVOID.forEach((x) => avoid.add(x));
+  }
+  if (healthIssues.includes("pelvic_heaviness")) {
+    PELVIC_AVOID.forEach((x) => avoid.add(x));
+  }
+  return Array.from(avoid);
+}
 
 // =========================================================
 // Meal pools & Smart Meal Guidance
@@ -1071,6 +1188,21 @@ export function getMealGuidance(mealName: string, slot: "breakfast" | "lunch" | 
     };
   }
 
+  if (lower.includes("curd rice") || lower.includes("wrap") || lower.includes("sandwich")) {
+    return {
+      prepTime: "5–8 min",
+      highlight: "10-Min Busy Night Rescue",
+      prepTip: "Keep plain curd or boiled eggs chilled in the fridge for true zero-stress assembly.",
+      familyNote: "Mild, cooling, and soothing — kids finish every bite without extra spice.",
+      ingredients: ["1 cup cooked rice / 2 slices bread or roti", "1/2 cup curd or protein filling + grated cucumber/carrot", "1 tsp ghee or olive oil with pinch jeera"],
+      steps: [
+        "Fold protein or curd gently with diced cucumber/carrot and mild salt.",
+        "Warm briefly (or skip stove completely for cool curd rice / quick wrap).",
+        "Serve immediately for a balanced dinner in under 8 minutes.",
+      ],
+    };
+  }
+
   return {
     prepTime: "15 min",
     highlight: "Wholesome Home Fuel",
@@ -1085,15 +1217,88 @@ export function getMealGuidance(mealName: string, slot: "breakfast" | "lunch" | 
   };
 }
 
+const QUICK_BUSY_NIGHT_MEALS: Record<
+  string,
+  Record<"breakfast" | "lunch" | "dinner" | "snack", string[]>
+> = {
+  vegetarian: {
+    breakfast: [
+      "Oats porridge with banana and honey",
+      "Poha with peanuts and veggies",
+      "Whole wheat toast with peanut butter and fruit",
+    ],
+    lunch: [
+      "Curd rice with grated carrot & jeera",
+      "Sprouts salad with lemon",
+    ],
+    dinner: [
+      "Moong dal khichdi with ghee",
+      "Besan chilla with mint chutney",
+      "Curd rice with grated carrot & jeera",
+    ],
+    snack: [
+      "A handful of roasted makhana",
+      "Roasted chana",
+      "Buttermilk (chaas) with roasted cumin",
+    ],
+  },
+  non_vegetarian: {
+    breakfast: [
+      "Scrambled eggs with whole wheat toast",
+      "Oats porridge with boiled egg on the side",
+    ],
+    lunch: [
+      "Egg fried rice (less oil) with veggies",
+      "Grilled chicken salad with olive oil dressing",
+    ],
+    dinner: [
+      "Chicken soup + whole wheat bread",
+      "Omelette with veggies and toast",
+    ],
+    snack: [
+      "Boiled egg with salt and pepper",
+      "Greek yogurt with honey",
+    ],
+  },
+  eggs_only: {
+    breakfast: [
+      "Scrambled eggs with whole wheat toast",
+      "Boiled eggs with fruit and nuts",
+    ],
+    lunch: [
+      "Egg fried rice (less oil) with veggies",
+      "Curd rice with grated carrot & jeera",
+    ],
+    dinner: [
+      "Vegetable soup + egg sandwich",
+      "Omelette with veggies and toast",
+    ],
+    snack: [
+      "Boiled egg with salt and pepper",
+      "Roasted chana",
+    ],
+  },
+};
+
+function resolveDietKey(foodPreference: string): "vegetarian" | "non_vegetarian" | "eggs_only" {
+  if (foodPreference === "non_vegetarian") return "non_vegetarian";
+  if (foodPreference === "eggs_only") return "eggs_only";
+  return "vegetarian";
+}
+
 /** Returns an alternative meal option for the given slot & dietary preference */
 export function getAlternativeMeal(
   slot: "breakfast" | "lunch" | "dinner" | "snack",
   foodPreference: string,
   currentMeal: string
 ): string {
-  let pool = MEALS_VEG;
-  if (foodPreference === "non_vegetarian") pool = MEALS_NONVEG;
-  if (foodPreference === "eggs_only") pool = MEALS_EGGS;
+  const key = resolveDietKey(foodPreference);
+  const pool =
+    key === "non_vegetarian"
+      ? MEALS_NONVEG
+      : key === "eggs_only"
+      ? MEALS_EGGS
+      : MEALS_VEG;
 
   const list = pool[slot];
   const idx = list.findIndex((m) => m.toLowerCase() === currentMeal.toLowerCase());
@@ -1102,6 +1307,64 @@ export function getAlternativeMeal(
   }
   const different = list.filter((m) => m.toLowerCase() !== currentMeal.toLowerCase());
   return different[0] || list[0];
+}
+
+/** Returns a fast 5–10 minute busy-night meal matching diet preference */
+export function getQuickBusyNightMeal(
+  slot: "breakfast" | "lunch" | "dinner" | "snack",
+  foodPreference: string,
+  currentMeal: string
+): string {
+  const key = resolveDietKey(foodPreference);
+  const list = QUICK_BUSY_NIGHT_MEALS[key][slot];
+  const idx = list.findIndex((m) => m.toLowerCase() === currentMeal.toLowerCase());
+  if (idx >= 0) {
+    return list[(idx + 1) % list.length];
+  }
+  const different = list.filter((m) => m.toLowerCase() !== currentMeal.toLowerCase());
+  return different[0] || list[0];
+}
+
+function parseNumericToken(token: string): number {
+  if (token.includes("/")) {
+    const [num, den] = token.split("/").map(Number);
+    return den ? num / den : Number(token) || 1;
+  }
+  return Number(token) || 1;
+}
+
+function formatScaledValue(val: number): string {
+  const rounded = Math.round(val * 4) / 4;
+  const whole = Math.floor(rounded);
+  const frac = rounded - whole;
+  const fracStr =
+    Math.abs(frac - 0.25) < 0.01
+      ? "1/4"
+      : Math.abs(frac - 0.5) < 0.01
+      ? "1/2"
+      : Math.abs(frac - 0.75) < 0.01
+      ? "3/4"
+      : "";
+  if (fracStr && whole === 0) return fracStr;
+  if (fracStr) return `${whole} ${fracStr}`;
+  if (Math.abs(rounded - Math.round(rounded)) < 0.01) return String(Math.round(rounded));
+  return String(Math.round(val * 10) / 10);
+}
+
+/** Scales measurable recipe/ingredient quantities cleanly for 1x, 2x, or 4x household sizes */
+export function scaleQuantityText(text: string, multiplier: number): string {
+  if (multiplier <= 1) return text;
+  return text.replace(
+    /\b(\d+\/\d+|\d+(?:\.\d+)?)(?:\s*[–-]\s*(\d+\/\d+|\d+(?:\.\d+)?))?(?=\s*(?:cups?|tbsp|tsp|eggs?|slices?|rotis?|g|kg|servings?|handfuls?|tall\s+glass(?:es)?)\b)/gi,
+    (_, first: string, second?: string) => {
+      const a = formatScaledValue(parseNumericToken(first) * multiplier);
+      if (second) {
+        const b = formatScaledValue(parseNumericToken(second) * multiplier);
+        return `${a}–${b}`;
+      }
+      return a;
+    }
+  );
 }
 
 /** Builds a clean grouped weekly grocery list from a 7-day meal slice. */
@@ -1216,20 +1479,17 @@ function getDayOfWeek(dayNumber: number): string {
 // Main generator function
 // =========================================================
 export function generatePlan(answers: QuizAnswers): Plan {
-  // Determine if we need gentle mode
+  const issues = Array.isArray(answers.healthIssues) ? answers.healthIssues : ["none"];
+  // Determine if we need gentle postpartum / recovery mode
   const isGentle =
-    answers.hasBabyUnder1 || answers.healthIssues.some((i) => i !== "none");
+    answers.hasBabyUnder1 ||
+    answers.deliveryType === "c_section" ||
+    issues.some((i) => i !== "none");
 
   const doctorReminder = isGentle;
 
-  // Build the "avoid" list based on pain
-  const avoidExercises: string[] = [];
-  if (answers.healthIssues.includes("knee_pain")) {
-    avoidExercises.push(...KNEE_AVOID);
-  }
-  if (answers.healthIssues.includes("back_pain")) {
-    avoidExercises.push(...BACK_AVOID);
-  }
+  // Build the "avoid" list based on pain, C-section, diastasis recti, and pelvic floor
+  const avoidExercises = getSafeAvoidList(issues, answers.deliveryType);
 
   // Pick the exercise pool
   let exercisePool = isGentle ? GENTLE_EXERCISES : REGULAR_BODYWEIGHT;

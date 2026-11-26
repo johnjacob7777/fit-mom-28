@@ -31,7 +31,12 @@ export interface UserData {
     waterGoal?: number;
     weightLog: Record<string, number>;
     moodWins?: Record<string, MoodWinEntry>;
-    dailyMode?: Record<string, "standard" | "gentle" | "posture" | "express">;
+    dailyMode?: Record<
+      string,
+      "standard" | "gentle" | "posture" | "express" | "baby_awake" | "rescue"
+    >;
+    portionMultiplier?: 1 | 2 | 4;
+    preferredWorkoutTime?: string;
     groceryChecked?: Record<string, boolean>;
     customGroceries?: string[];
     swappedExercises?: Record<string, Record<string, Exercise>>;

@@ -50,6 +50,9 @@ export const EXERCISE_YOUTUBE_LINKS: Record<string, string> = {
   "standing-hip-circles": "https://www.youtube.com/watch?v=x-5h_QUOem8",
   "gentle-cat-cow-all-fours": "https://www.youtube.com/watch?v=LIVJZZyZ2qM",
   "seated-torso-chest-opener": "https://www.youtube.com/watch?v=VH16GqIiy7Q",
+  "gentle-pelvic-tilts-deep-core": "https://www.youtube.com/watch?v=6nxQlNDuLCU",
+  "mommy-thumb-wrist-relief-stretches": "https://www.youtube.com/watch?v=7jeEZUGqDNw",
+  "wrist-tendon-gentle-glide": "https://www.youtube.com/watch?v=E7vibxI3yZY",
 
   // ─── Regular Bodyweight ───
   "bodyweight-squats": "https://www.youtube.com/watch?v=n_xLyzPEX7A",

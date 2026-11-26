@@ -14,11 +14,15 @@ import {
   enrichExercise,
   getExpressRoutine,
   getPostureReliefRoutine,
+  getBabyAwakeRoutine,
+  getTwoAmRescueRoutine,
+  getSafeAvoidList,
   getGentleSwap,
 } from "@/lib/planGenerator";
 import GuidedWorkoutPlayer from "@/components/GuidedWorkoutPlayer";
 import ExerciseDemoDisplay from "@/components/ExerciseDemoDisplay";
 import BreathingPacer from "@/components/BreathingPacer";
+import DailyReminderCard from "@/components/DailyReminderCard";
 import MealsAndGroceryTab from "@/components/MealsAndGroceryTab";
 import ProgressAndWinsTab from "@/components/ProgressAndWinsTab";
 import {
@@ -47,10 +51,12 @@ import {
   Video,
   CheckSquare,
   Square,
+  Baby,
+  Moon,
 } from "lucide-react";
 
 type DashboardTab = "today" | "roadmap" | "meals" | "progress";
-type DailyMode = "standard" | "gentle" | "posture" | "express";
+type DailyMode = "standard" | "gentle" | "posture" | "express" | "baby_awake" | "rescue";
 
 function getLocalYMD(date: Date = new Date()): string {
   return [
@@ -153,13 +159,38 @@ export default function DashboardPage() {
   const naturalPlanDay = getPlanDay();
   const activeDayNumber = previewDayNumber ?? naturalPlanDay;
   const plan = userData?.plan as Plan | undefined;
+  const [showDiastasisGuide, setShowDiastasisGuide] = useState<boolean>(false);
+  const [dismissedRebootBanner, setDismissedRebootBanner] = useState<boolean>(false);
   const quizMinutes = Number((userData?.quizAnswers as any)?.exerciseMinutes) || 20;
   const foodPreference = String((userData?.quizAnswers as any)?.foodPreference || "vegetarian");
   const isBreastfeeding = Boolean((userData?.quizAnswers as any)?.isBreastfeeding);
+  const hasBabyUnder1 = Boolean((userData?.quizAnswers as any)?.hasBabyUnder1);
+  const deliveryType = String((userData?.quizAnswers as any)?.deliveryType || "not_applicable");
   const waterGoal = userData?.progress?.waterGoal || (isBreastfeeding ? 11 : 8);
+  const portionMultiplier: 1 | 2 | 4 = userData?.progress?.portionMultiplier || 1;
+  const preferredWorkoutTime = userData?.progress?.preferredWorkoutTime || "07:30";
   const healthIssues: string[] = Array.isArray((userData?.quizAnswers as any)?.healthIssues)
     ? (userData?.quizAnswers as any).healthIssues
     : ["none"];
+  const needsCoreSafetyBanner =
+    hasBabyUnder1 ||
+    deliveryType === "c_section" ||
+    healthIssues.includes("diastasis_recti") ||
+    healthIssues.includes("pelvic_heaviness");
+
+  const daysSinceLastWorkout = useMemo(() => {
+    const doneDates = Object.entries(userData?.progress?.workoutsCompleted || {})
+      .filter(([d, val]) => Boolean(val) && d !== today)
+      .map(([d]) => d)
+      .sort();
+    if (doneDates.length === 0) return 0;
+    const last = doneDates[doneDates.length - 1];
+    const [y1, m1, d1] = last.split("-").map(Number);
+    const [y2, m2, d2] = today.split("-").map(Number);
+    const t1 = new Date(y1, (m1 || 1) - 1, d1 || 1).getTime();
+    const t2 = new Date(y2, (m2 || 1) - 1, d2 || 1).getTime();
+    return Math.max(0, Math.round((t2 - t1) / (1000 * 60 * 60 * 24)));
+  }, [userData, today]);
 
   // Stored daily mode (energy check-in)
   const dailyMode: DailyMode =
@@ -179,6 +210,12 @@ export default function DashboardPage() {
     }
     if (dailyMode === "posture") {
       return getPostureReliefRoutine();
+    }
+    if (dailyMode === "baby_awake") {
+      return getBabyAwakeRoutine();
+    }
+    if (dailyMode === "rescue") {
+      return getTwoAmRescueRoutine();
     }
 
     const dayKey = `day_${activeDayNumber}`;
@@ -200,7 +237,15 @@ export default function DashboardPage() {
   }, [baseWorkout, dailyMode, activeDayNumber, userData]);
 
   const effectiveMinutes =
-    dailyMode === "express" ? 5 : dailyMode === "posture" ? 12 : quizMinutes;
+    dailyMode === "express"
+      ? 5
+      : dailyMode === "rescue"
+      ? 4
+      : dailyMode === "posture"
+      ? 12
+      : dailyMode === "baby_awake"
+      ? 15
+      : quizMinutes;
 
   const baseMeal = plan?.meals?.[(activeDayNumber - 1) % 28];
   const dayMealSwaps = userData?.progress?.swappedMeals?.[`day_${activeDayNumber}`] || {};
@@ -229,9 +274,23 @@ export default function DashboardPage() {
     });
   };
 
+  const handleChangePortionMultiplier = async (next: 1 | 2 | 4) => {
+    if (!user) return;
+    await updateUserDocument({
+      "progress.portionMultiplier": next,
+    });
+  };
+
+  const handleSavePreferredTime = async (time: string) => {
+    if (!user) return;
+    await updateUserDocument({
+      "progress.preferredWorkoutTime": time,
+    });
+  };
+
   const handleSwapExercise = async (exerciseIndex: number, currentName: string) => {
     if (!user) return;
-    const avoidList: string[] = [];
+    const avoidList = getSafeAvoidList(healthIssues, deliveryType);
     if (healthIssues.includes("knee_pain")) {
       avoidList.push("Supported squats (hold chair)", "Standing hip circles");
     }
@@ -542,19 +601,90 @@ export default function DashboardPage() {
               </button>
             </div>
 
+            {/* ─── ZERO-GUILT LIFE HAPPENED REBOOT BANNER ─── */}
+            {daysSinceLastWorkout >= 2 && !isWorkoutDone && !dismissedRebootBanner && (
+              <div className="bg-peach-100/90 border border-peach-300 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-fade-in">
+                <div className="text-xs text-plum/85 space-y-0.5">
+                  <p className="font-bold text-sm text-plum">
+                    Welcome back, Mama — zero guilt allowed 🌸
+                  </p>
+                  <p>
+                    It&apos;s been {daysSinceLastWorkout} days since your last session (sick nights &amp; life happen!). Pick right back up smoothly without losing your progress.
+                  </p>
+                </div>
+                <div className="flex flex-wrap items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleDailyModeChange("express");
+                      setDismissedRebootBanner(true);
+                    }}
+                    className="btn-primary py-2 px-3.5 text-xs"
+                  >
+                    <Zap className="w-3.5 h-3.5" /> 5-Min Gentle Reboot
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDismissedRebootBanner(true)}
+                    className="text-xs font-semibold text-plum/70 hover:text-plum px-2.5 py-1.5"
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* ─── POSTPARTUM CORE / DIASTASIS / C-SECTION SAFETY CARD ─── */}
+            {needsCoreSafetyBanner && (
+              <div className="bg-sage-50 border border-sage-200 rounded-2xl p-4 text-xs text-plum/85 space-y-2">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="font-bold text-plum flex items-center gap-1.5">
+                    <ShieldCheck className="w-4 h-4 text-sage-600" />
+                    Core &amp; Scar-Safe Filter Active
+                    {deliveryType === "c_section" ? " (C-Section Protection)" : ""}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setShowDiastasisGuide(!showDiastasisGuide)}
+                    className="font-bold text-plum underline"
+                  >
+                    {showDiastasisGuide
+                      ? "Hide 60s Belly Check"
+                      : "60-Second 2-Finger Belly Check"}
+                  </button>
+                </div>
+                <p>
+                  Intense crunches, full planks, and jarring jumps are filtered out automatically in favor of pelvic floor, heel slides, and deep breath coordination.
+                </p>
+
+                {showDiastasisGuide && (
+                  <div className="bg-white rounded-xl p-3 border border-sage-200 space-y-1.5 text-plum/80">
+                    <p className="font-bold text-plum">
+                      Quick Diastasis Recti (Ab Gap) Check:
+                    </p>
+                    <ol className="list-decimal pl-4 space-y-1">
+                      <li>Lie on your back with knees bent, feet flat on the floor.</li>
+                      <li>Press 2 fingers lightly just above your belly button as you exhale and lift only your head slightly.</li>
+                      <li>If you notice a 2+ finger soft dip or &ldquo;doming&rdquo; ridge along the midline, stick with Gentle &amp; Pelvic Floor options until your provider clears deeper loading.</li>
+                    </ol>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* ─── LIVE ENERGY & BODY CHECK-IN ADAPTOR ─── */}
             <div className="card-soft p-4 sm:p-5 space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="text-xs font-bold uppercase tracking-wider text-plum/70 flex items-center gap-1.5">
                   <Heart className="w-3.5 h-3.5 text-blush-400 fill-blush-300" />
-                  How is your energy right now?
+                  How is your day &amp; energy right now?
                 </span>
                 <span className="text-[11px] text-plum/60">
-                  Instantly adapts today&apos;s session
+                  Instantly adapts today&apos;s YouTube-guided session
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {[
                   {
                     id: "standard" as DailyMode,
@@ -569,10 +699,22 @@ export default function DashboardPage() {
                     icon: BatteryLow,
                   },
                   {
+                    id: "baby_awake" as DailyMode,
+                    label: "Baby Awake",
+                    sub: "Standing & Beside Mat",
+                    icon: Baby,
+                  },
+                  {
                     id: "posture" as DailyMode,
                     label: "Sore Back / Neck",
                     sub: "Carrying Unwind",
                     icon: Accessibility,
+                  },
+                  {
+                    id: "rescue" as DailyMode,
+                    label: "2 AM / Wrist Relief",
+                    sub: "Thumb, Neck & Calm",
+                    icon: Moon,
                   },
                   {
                     id: "express" as DailyMode,
@@ -617,6 +759,22 @@ export default function DashboardPage() {
                 <ShieldCheck className="w-4 h-4 text-sage-600 shrink-0 mt-0.5" />
                 <span>
                   <strong>Gentle recovery mode active:</strong> Take your time, use the gentler exercise options shown inside each step, or tap &ldquo;Gentle Swap&rdquo; below any exercise. Consult your doctor if managing postpartum recovery or pain.
+                </span>
+              </div>
+            )}
+            {dailyMode === "baby_awake" && (
+              <div className="bg-peach-50 border border-peach-200 rounded-2xl p-3.5 text-xs text-plum/80 flex items-start gap-2.5">
+                <Baby className="w-4 h-4 text-plum shrink-0 mt-0.5" />
+                <span>
+                  <strong>Baby-Awake mode active:</strong> Standing &amp; safe balance movements so your little one can watch from a play mat or bouncer while you move cleanly.
+                </span>
+              </div>
+            )}
+            {dailyMode === "rescue" && (
+              <div className="bg-blush-50 border border-blush-200 rounded-2xl p-3.5 text-xs text-plum/80 flex items-start gap-2.5">
+                <Moon className="w-4 h-4 text-blush-400 shrink-0 mt-0.5" />
+                <span>
+                  <strong>2 AM &amp; Feeding Wrist/Neck Relief loaded:</strong> Guided stretches for &ldquo;Mommy Thumb&rdquo;, tired nursing shoulders, and calm 4-6 breathing.
                 </span>
               </div>
             )}
@@ -911,7 +1069,10 @@ export default function DashboardPage() {
                                     </div>
                                   )}
 
-                                  {dailyMode !== "express" && dailyMode !== "posture" && (
+                                  {dailyMode !== "express" &&
+                                    dailyMode !== "posture" &&
+                                    dailyMode !== "baby_awake" &&
+                                    dailyMode !== "rescue" && (
                                     <div className="pt-1 flex justify-end">
                                       <button
                                         type="button"
@@ -1135,6 +1296,12 @@ export default function DashboardPage() {
                 </button>
               </div>
             )}
+
+            {/* ───────── DAILY REMINDER & PHONE HOME-SCREEN BLOCK ───────── */}
+            <DailyReminderCard
+              preferredTime={preferredWorkoutTime}
+              onSavePreferredTime={handleSavePreferredTime}
+            />
           </div>
         )}
 
@@ -1261,12 +1428,14 @@ export default function DashboardPage() {
             currentDayIndex={activeDayNumber - 1}
             foodPreference={foodPreference}
             isBreastfeeding={isBreastfeeding}
+            portionMultiplier={portionMultiplier}
             swappedMeals={userData?.progress?.swappedMeals || {}}
             customGroceries={userData?.progress?.customGroceries || []}
             groceryChecked={userData?.progress?.groceryChecked || {}}
             onToggleGroceryItem={handleToggleGroceryItem}
             onSwapMeal={handleSwapMeal}
             onUpdateCustomGroceries={handleUpdateCustomGroceries}
+            onChangePortionMultiplier={handleChangePortionMultiplier}
           />
         )}
 

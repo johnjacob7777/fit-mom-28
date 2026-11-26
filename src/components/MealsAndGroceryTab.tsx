@@ -8,7 +8,9 @@ import {
   MealDay,
   getMealGuidance,
   getAlternativeMeal,
+  getQuickBusyNightMeal,
   getWeeklyGroceryList,
+  scaleQuantityText,
 } from "@/lib/planGenerator";
 import {
   Utensils,
@@ -39,6 +41,7 @@ interface MealsAndGroceryTabProps {
   currentDayIndex: number; // 0-27
   foodPreference: string;
   isBreastfeeding?: boolean;
+  portionMultiplier?: 1 | 2 | 4;
   swappedMeals?: Record<string, Record<string, string>>;
   customGroceries?: string[];
   groceryChecked: Record<string, boolean>;
@@ -49,6 +52,7 @@ interface MealsAndGroceryTabProps {
     nextMeal: string
   ) => void;
   onUpdateCustomGroceries: (items: string[]) => void;
+  onChangePortionMultiplier?: (multiplier: 1 | 2 | 4) => void;
 }
 
 function toSlug(text: string): string {
@@ -60,12 +64,14 @@ export default function MealsAndGroceryTab({
   currentDayIndex,
   foodPreference,
   isBreastfeeding = false,
+  portionMultiplier = 1,
   swappedMeals = {},
   customGroceries = [],
   groceryChecked,
   onToggleGroceryItem,
   onSwapMeal,
   onUpdateCustomGroceries,
+  onChangePortionMultiplier,
 }: MealsAndGroceryTabProps) {
   const initialWeek = Math.floor(currentDayIndex / 7);
   const [selectedWeek, setSelectedWeek] = useState<number>(initialWeek);
@@ -75,6 +81,13 @@ export default function MealsAndGroceryTab({
   const [copiedList, setCopiedList] = useState<boolean>(false);
   const [expandedRecipeSlot, setExpandedRecipeSlot] = useState<string | null>(null);
   const [customInput, setCustomInput] = useState<string>("");
+  const [localPortion, setLocalPortion] = useState<1 | 2 | 4>(portionMultiplier);
+  const activePortion = onChangePortionMultiplier ? portionMultiplier : localPortion;
+
+  const handleSelectPortion = (next: 1 | 2 | 4) => {
+    setLocalPortion(next);
+    onChangePortionMultiplier?.(next);
+  };
 
   const dayIndex = (selectedWeek * 7 + selectedDayOffset) % Math.max(1, meals.length);
   const baseMeal = meals[dayIndex] || meals[0];
@@ -127,15 +140,24 @@ export default function MealsAndGroceryTab({
     0
   );
 
+  const portionLabel =
+    activePortion === 1
+      ? "Just Me (1×)"
+      : activePortion === 2
+      ? "Partner & Me (2×)"
+      : "Full Family (4×)";
+
   const handleCopyGroceryList = async () => {
     const lines = [
-      `Fit Mom 20 — Week ${selectedWeek + 1} Grocery List:`,
+      `Fit Mom 20 — Week ${selectedWeek + 1} Grocery List (${portionLabel}):`,
       "",
       ...groceryCategories.flatMap((cat) => [
         `${cat.category}:`,
         ...cat.items.map((item) => {
           const isDone = !!groceryChecked[toSlug(`w${selectedWeek + 1}_${item}`)];
-          return `${isDone ? "[x]" : "[ ]"} ${item}`;
+          const displayItem =
+            cat.category === "My Custom Items" ? item : scaleQuantityText(item, activePortion);
+          return `${isDone ? "[x]" : "[ ]"} ${displayItem}`;
         }),
         "",
       ]),
@@ -209,6 +231,28 @@ export default function MealsAndGroceryTab({
           </div>
 
           <div className="flex flex-wrap items-center gap-2 no-print">
+            {/* Family Portion Size Toggle */}
+            <div className="flex gap-1 bg-cream-50 p-1 rounded-xl border border-peach-200">
+              {[
+                { val: 1 as const, label: "1× Me" },
+                { val: 2 as const, label: "2× Partner" },
+                { val: 4 as const, label: "4× Family" },
+              ].map((opt) => (
+                <button
+                  key={opt.val}
+                  type="button"
+                  onClick={() => handleSelectPortion(opt.val)}
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all ${
+                    activePortion === opt.val
+                      ? "bg-sage-600 text-white shadow-xs"
+                      : "text-plum/70 hover:text-plum"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+
             <div className="flex gap-1 bg-cream-50 p-1 rounded-xl border border-peach-200">
               {[0, 1, 2, 3].map((wk) => (
                 <button
@@ -264,7 +308,7 @@ export default function MealsAndGroceryTab({
           })}
         </div>
 
-        {/* Meal Cards with Swap + 3-Step Quick Recipe + Mom Hack */}
+        {/* Meal Cards with Swap + 10-Min Busy Night Rescue + Scaled Quick Recipe */}
         <div className="grid sm:grid-cols-2 gap-3.5 pt-2">
           {mealSlots.map((item) => {
             const Icon = item.icon;
@@ -276,14 +320,28 @@ export default function MealsAndGroceryTab({
                 className="bg-cream-50 p-4 rounded-2xl border border-peach-200/80 space-y-2.5 flex flex-col justify-between"
               >
                 <div>
-                  <div className="flex items-center justify-between gap-2 mb-1.5">
+                  <div className="flex flex-wrap items-center justify-between gap-1.5 mb-1.5">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-plum/65 flex items-center gap-1.5">
                       <Icon className="w-3.5 h-3.5 text-plum" /> {item.label}
                     </span>
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1">
                       <span className="text-[10px] font-semibold bg-white px-2 py-0.5 rounded-full border border-peach-200 text-plum/75 inline-flex items-center gap-1">
                         <Clock className="w-2.5 h-2.5" /> {guide.prepTime}
                       </span>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          onSwapMeal(
+                            dayIndex,
+                            item.slot,
+                            getQuickBusyNightMeal(item.slot, foodPreference, item.value)
+                          )
+                        }
+                        className="no-print text-[10px] font-bold bg-sage-100 hover:bg-sage-200 text-sage-800 px-2 py-0.5 rounded-full inline-flex items-center gap-1 transition-colors"
+                        title="Switch to a 5–10 minute busy-night meal"
+                      >
+                        ⚡ 10m
+                      </button>
                       <button
                         type="button"
                         onClick={() =>
@@ -345,11 +403,11 @@ export default function MealsAndGroceryTab({
                       <div className="mt-2 bg-white p-3 rounded-xl border border-peach-200/80 space-y-2 animate-fade-in">
                         <div>
                           <span className="text-[10px] font-bold uppercase tracking-wider text-plum/60 block">
-                            Quick Ingredients
+                            Quick Ingredients ({portionLabel})
                           </span>
                           <ul className="list-disc pl-4 space-y-0.5 text-plum/85 mt-0.5">
                             {guide.ingredients.map((ing, i) => (
-                              <li key={i}>{ing}</li>
+                              <li key={i}>{scaleQuantityText(ing, activePortion)}</li>
                             ))}
                           </ul>
                         </div>
@@ -380,6 +438,9 @@ export default function MealsAndGroceryTab({
             <h3 className="font-heading font-bold text-xl text-plum flex items-center gap-2">
               <ShoppingBasket className="w-5 h-5 text-sage-600" />
               Week {selectedWeek + 1} Smart Grocery List
+              <span className="text-[11px] font-bold bg-sage-100 text-sage-700 px-2.5 py-0.5 rounded-full">
+                {portionLabel}
+              </span>
             </h3>
             <p className="text-xs text-plum/65 mt-0.5">
               Tap items as you pack your pantry • {checkedCount} of {totalItems} checked
@@ -437,6 +498,7 @@ export default function MealsAndGroceryTab({
                   {cat.items.map((item) => {
                     const key = toSlug(`w${selectedWeek + 1}_${item}`);
                     const isChecked = !!groceryChecked[key];
+                    const scaledItem = isCustomCat ? item : scaleQuantityText(item, activePortion);
                     return (
                       <div
                         key={key}
@@ -456,7 +518,7 @@ export default function MealsAndGroceryTab({
                           ) : (
                             <Square className="w-4 h-4 text-peach-300 shrink-0 mt-0.5" />
                           )}
-                          <span>{item}</span>
+                          <span>{scaledItem}</span>
                         </button>
                         {isCustomCat && (
                           <button

@@ -93,6 +93,7 @@ export default function GuidedWorkoutPlayer({
   const [soundOn, setSoundOn] = useState<boolean>(true);
   const [voiceOn, setVoiceOn] = useState<boolean>(false);
   const [showGentleTip, setShowGentleTip] = useState<boolean>(isGentleMode);
+  const [showBreathVideo, setShowBreathVideo] = useState<boolean>(false);
 
   // Sync gentle tip display when parent gentle mode toggles
   useEffect(() => {
@@ -505,9 +506,31 @@ export default function GuidedWorkoutPlayer({
               </div>
 
               {/* Guided Video Demonstration OR Interactive 4-6 Breathing Pacer */}
-              {currentStep.phase === "Breathe & Sip" ||
-              currentStep.title.toLowerCase().includes("deep breathing") ? (
+              {currentStep.phase === "Breathe & Sip" ? (
                 <BreathingPacer controlledActive={isRunning} compact={compact} />
+              ) : currentStep.title.toLowerCase().includes("deep breathing") ? (
+                <div className="space-y-2">
+                  {showBreathVideo ? (
+                    <ExerciseDemoDisplay
+                      exerciseName={currentStep.title}
+                      isPlaying={isRunning}
+                      compact={compact}
+                    />
+                  ) : (
+                    <BreathingPacer controlledActive={isRunning} compact={compact} />
+                  )}
+                  <div className="text-right">
+                    <button
+                      type="button"
+                      onClick={() => setShowBreathVideo(!showBreathVideo)}
+                      className="text-[11px] font-bold text-plum/70 hover:text-plum underline"
+                    >
+                      {showBreathVideo
+                        ? "Switch back to visual 4-6 pacer"
+                        : "Watch YouTube breathing tutorial instead"}
+                    </button>
+                  </div>
+                </div>
               ) : (
                 <ExerciseDemoDisplay
                   exerciseName={currentStep.title}

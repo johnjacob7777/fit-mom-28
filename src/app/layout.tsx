@@ -6,6 +6,12 @@ export const metadata: Metadata = {
   title: "Fit Mom 20 — A Simple 20-Minute Daily Plan for Busy Moms",
   description:
     "No gym. No equipment. No guilt. Personalized 20-minute daily home fitness and simple weekly meal ideas designed specifically for busy moms.",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    title: "Fit Mom 20",
+    statusBarStyle: "default",
+  },
   openGraph: {
     title: "Fit Mom 20 — Feel Fit Again in 20 Minutes a Day",
     description: "No gym. No equipment. No guilt. Simple home workouts made for busy moms.",

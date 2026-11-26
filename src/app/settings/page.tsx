@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
+import DailyReminderCard from "@/components/DailyReminderCard";
 import {
   ArrowLeft,
   Save,
@@ -36,6 +37,7 @@ export default function SettingsPage() {
   const [exerciseMinutes, setExerciseMinutes] = useState<number>(20);
   const [exerciseLocation, setExerciseLocation] = useState<string>("home_no_equipment");
   const [hasBabyUnder1, setHasBabyUnder1] = useState<boolean>(false);
+  const [deliveryType, setDeliveryType] = useState<"vaginal" | "c_section" | "not_applicable">("not_applicable");
   const [isBreastfeeding, setIsBreastfeeding] = useState<boolean>(false);
   const [restDay, setRestDay] = useState<string>("Sunday");
   const [healthIssues, setHealthIssues] = useState<string[]>(["none"]);
@@ -61,6 +63,7 @@ export default function SettingsPage() {
       if (q.exerciseMinutes) setExerciseMinutes(Number(q.exerciseMinutes));
       if (q.exerciseLocation) setExerciseLocation(q.exerciseLocation);
       if (typeof q.hasBabyUnder1 === "boolean") setHasBabyUnder1(q.hasBabyUnder1);
+      if (q.deliveryType) setDeliveryType(q.deliveryType);
       if (typeof q.isBreastfeeding === "boolean") setIsBreastfeeding(q.isBreastfeeding);
       if (q.restDay) setRestDay(String(q.restDay));
       if (Array.isArray(q.healthIssues)) setHealthIssues(q.healthIssues);
@@ -95,6 +98,7 @@ export default function SettingsPage() {
       exerciseMinutes,
       exerciseLocation,
       hasBabyUnder1,
+      deliveryType: hasBabyUnder1 ? deliveryType : "not_applicable",
       isBreastfeeding,
       restDay,
       healthIssues,
@@ -326,7 +330,10 @@ export default function SettingsPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setHasBabyUnder1(false)}
+                  onClick={() => {
+                    setHasBabyUnder1(false);
+                    setDeliveryType("not_applicable");
+                  }}
                   className={`py-3 px-4 rounded-xl border-2 text-sm font-bold transition-all ${
                     !hasBabyUnder1
                       ? "border-plum bg-peach-100/70 text-plum"
@@ -336,6 +343,31 @@ export default function SettingsPage() {
                   No
                 </button>
               </div>
+
+              {hasBabyUnder1 && (
+                <div className="mt-2.5 grid grid-cols-3 gap-2 text-xs font-semibold">
+                  {[
+                    { id: "vaginal", label: "Vaginal Birth" },
+                    { id: "c_section", label: "C-Section Scar" },
+                    { id: "not_applicable", label: "Skip" },
+                  ].map((opt) => (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() =>
+                        setDeliveryType(opt.id as "vaginal" | "c_section" | "not_applicable")
+                      }
+                      className={`py-2 px-2 rounded-xl border transition-all ${
+                        deliveryType === opt.id
+                          ? "bg-plum text-white border-plum"
+                          : "bg-cream-50 text-plum/75 border-peach-200"
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Breastfeeding / Hydration Goal */}
@@ -403,6 +435,8 @@ export default function SettingsPage() {
                 {[
                   { id: "back_pain", label: "Lower Back Pain" },
                   { id: "knee_pain", label: "Knee Discomfort" },
+                  { id: "diastasis_recti", label: "Diastasis Recti (Core Gap)" },
+                  { id: "pelvic_heaviness", label: "Pelvic Floor Heaviness" },
                   { id: "other", label: "Other" },
                   { id: "none", label: "None" },
                 ].map((item) => {
@@ -484,6 +518,14 @@ export default function SettingsPage() {
             </span>
           </div>
         </div>
+
+        {/* Daily Window & Calendar Reminder Card */}
+        <DailyReminderCard
+          preferredTime={userData?.progress?.preferredWorkoutTime || "07:30"}
+          onSavePreferredTime={async (time) => {
+            await updateUserDocument({ "progress.preferredWorkoutTime": time });
+          }}
+        />
 
         {/* Membership & 1-Click Cancellation Card */}
         <div className="card-soft space-y-4">

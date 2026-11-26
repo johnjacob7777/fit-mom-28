@@ -43,6 +43,7 @@ export default function OnboardingPage() {
   const [currentWeight, setCurrentWeight] = useState("");
   const [goalWeight, setGoalWeight] = useState("");
   const [hasBabyUnder1, setHasBabyUnder1] = useState<boolean | null>(null);
+  const [deliveryType, setDeliveryType] = useState<"vaginal" | "c_section" | "not_applicable">("not_applicable");
   const [isBreastfeeding, setIsBreastfeeding] = useState<boolean>(false);
   const [exerciseMinutes, setExerciseMinutes] = useState<number | null>(20);
   const [exerciseLocation, setExerciseLocation] = useState("home_no_equipment");
@@ -60,6 +61,7 @@ export default function OnboardingPage() {
       if (q.currentWeight) setCurrentWeight(String(q.currentWeight));
       if (q.goalWeight) setGoalWeight(String(q.goalWeight));
       if (typeof q.hasBabyUnder1 === "boolean") setHasBabyUnder1(q.hasBabyUnder1);
+      if (q.deliveryType) setDeliveryType(q.deliveryType);
       if (typeof q.isBreastfeeding === "boolean") setIsBreastfeeding(q.isBreastfeeding);
       if (q.exerciseMinutes) setExerciseMinutes(Number(q.exerciseMinutes));
       if (q.exerciseLocation) setExerciseLocation(q.exerciseLocation);
@@ -135,6 +137,7 @@ export default function OnboardingPage() {
       currentWeight,
       goalWeight,
       hasBabyUnder1: hasBabyUnder1 || false,
+      deliveryType: hasBabyUnder1 ? deliveryType : "not_applicable",
       isBreastfeeding,
       restDay: "Sunday",
       exerciseMinutes: exerciseMinutes || 20,
@@ -329,7 +332,10 @@ export default function OnboardingPage() {
 
                 <button
                   type="button"
-                  onClick={() => setHasBabyUnder1(false)}
+                  onClick={() => {
+                    setHasBabyUnder1(false);
+                    setDeliveryType("not_applicable");
+                  }}
                   className={`p-6 rounded-2xl border-2 text-center transition-all ${
                     hasBabyUnder1 === false
                       ? "border-plum bg-peach-100/70 shadow-sm"
@@ -344,6 +350,36 @@ export default function OnboardingPage() {
                   </span>
                 </button>
               </div>
+
+              {hasBabyUnder1 === true && (
+                <div className="bg-cream-50 border border-peach-200 rounded-2xl p-4 text-left space-y-2.5 animate-fade-in">
+                  <span className="block text-xs font-bold text-plum">
+                    Delivery type (helps us protect your core &amp; scar cleanly):
+                  </span>
+                  <div className="grid grid-cols-3 gap-2 text-xs font-semibold">
+                    {[
+                      { id: "vaginal", label: "Vaginal Birth" },
+                      { id: "c_section", label: "C-Section Scar" },
+                      { id: "not_applicable", label: "Skip" },
+                    ].map((opt) => (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        onClick={() =>
+                          setDeliveryType(opt.id as "vaginal" | "c_section" | "not_applicable")
+                        }
+                        className={`py-2 px-2 rounded-xl border transition-all ${
+                          deliveryType === opt.id
+                            ? "bg-plum text-white border-plum"
+                            : "bg-white text-plum/75 border-peach-200 hover:border-peach-300"
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Breastfeeding / Nursing hydration support */}
               <label className="flex items-start gap-3 p-4 rounded-2xl border border-sage-200 bg-sage-50/70 text-left cursor-pointer hover:bg-sage-50 transition-colors">
@@ -512,6 +548,8 @@ export default function OnboardingPage() {
                 {[
                   { id: "back_pain", label: "Lower Back Pain", desc: "Filters out crunches & heavy spinal loads" },
                   { id: "knee_pain", label: "Knee Discomfort", desc: "Filters out deep lunges & jumping" },
+                  { id: "diastasis_recti", label: "Diastasis Recti / Belly Gap", desc: "Replaces planks & crunches with deep-core heals" },
+                  { id: "pelvic_heaviness", label: "Pelvic Floor Heaviness", desc: "Low-impact breath & pelvic support only" },
                   { id: "other", label: "Other Sensitivity", desc: "Prioritizes gentle floor routines" },
                   { id: "none", label: "None / Feeling Good", desc: "Standard balanced movements" },
                 ].map((item) => {

@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import { FOOD_REGIONS, FoodRegion } from "@/lib/planGenerator";
+import { FOOD_REGIONS, type FoodRegion } from "@/lib/foodRegions";
 import DailyReminderCard from "@/components/DailyReminderCard";
 import {
   ArrowLeft,

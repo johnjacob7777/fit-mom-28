@@ -8,7 +8,7 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { getStripe } from "@/lib/stripe";
 import { IS_DEMO_ENABLED } from "@/lib/appConfig";
-import { FOOD_REGIONS } from "@/lib/planGenerator";
+import { FOOD_REGIONS } from "@/lib/foodRegions";
 import {
   ArrowLeft,
   CheckCircle2,

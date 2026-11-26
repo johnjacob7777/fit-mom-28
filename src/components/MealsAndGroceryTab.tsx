@@ -4,10 +4,9 @@
 // custom grocery additions, nursing tips, and fridge print view.
 // =============================================================
 import { useState, useMemo } from "react";
+import { FOOD_REGIONS, type FoodRegion } from "@/lib/foodRegions";
 import {
   MealDay,
-  FOOD_REGIONS,
-  FoodRegion,
   getMealGuidance,
   getAlternativeMeal,
   getQuickBusyNightMeal,

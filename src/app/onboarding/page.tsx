@@ -5,7 +5,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { FOOD_REGIONS, FoodRegion } from "@/lib/planGenerator";
+import { FOOD_REGIONS, type FoodRegion } from "@/lib/foodRegions";
 import {
   ArrowLeft,
   ArrowRight,

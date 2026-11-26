@@ -8,7 +8,17 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { getStripe } from "@/lib/stripe";
 import { IS_DEMO_ENABLED } from "@/lib/appConfig";
-import { ArrowLeft, CheckCircle2, ShieldCheck, Sparkles, Lock } from "lucide-react";
+import { FOOD_REGIONS } from "@/lib/planGenerator";
+import {
+  ArrowLeft,
+  CheckCircle2,
+  ShieldCheck,
+  Sparkles,
+  Lock,
+  Clock,
+  Utensils,
+  Heart,
+} from "lucide-react";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -69,6 +79,36 @@ export default function CheckoutPage() {
     );
   }
 
+  const quiz = (userData?.quizAnswers || {}) as {
+    exerciseMinutes?: number;
+    hasBabyUnder1?: boolean;
+    deliveryType?: string;
+    isBreastfeeding?: boolean;
+    healthIssues?: string[];
+    foodPreference?: string;
+    foodRegion?: string;
+  };
+  const planMinutes = Number(quiz.exerciseMinutes) || 20;
+  const issues = Array.isArray(quiz.healthIssues) ? quiz.healthIssues : ["none"];
+  const isPostpartumGentle =
+    Boolean(quiz.hasBabyUnder1) ||
+    quiz.deliveryType === "c_section" ||
+    issues.some((i) => i !== "none");
+  const dietLabel =
+    quiz.foodPreference === "non_vegetarian"
+      ? "Non-Vegetarian"
+      : quiz.foodPreference === "eggs_only"
+      ? "Eggs Only"
+      : "Vegetarian";
+  const regionLabel =
+    FOOD_REGIONS.find((r) => r.id === quiz.foodRegion)?.label || "All-India Home Mix";
+  const bodyFocusLabel =
+    quiz.deliveryType === "c_section"
+      ? "C-Section & Diastasis-Safe Gentle Mode"
+      : isPostpartumGentle
+      ? "Gentle Core & Joint-Safe Filter"
+      : "Balanced Living-Room Strength";
+
   return (
     <main className="min-h-screen bg-cream flex flex-col justify-center px-4 py-12">
       <div className="w-full max-w-md mx-auto text-center space-y-6">
@@ -86,11 +126,48 @@ export default function CheckoutPage() {
             <span className="font-heading font-bold text-xl text-plum">Fit Mom 20</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-heading font-bold text-plum mt-3">
-            Your Plan Is Ready, Mama! 🌸
+            {userData?.displayName
+              ? `${userData.displayName}, Your Custom Plan Is Ready 🌸`
+              : "Your Custom 4-Week Plan Is Ready 🌸"}
           </h1>
           <p className="text-plum/70 text-sm mt-1">
-            Unlock your personalized 4-week daily routines and meal ideas.
+            Built from your quiz answers — ready for Day 1 right after checkout.
           </p>
+        </div>
+
+        {/* Personalized Endowment Summary */}
+        <div className="bg-peach-50/90 border border-peach-200 rounded-2xl p-4 text-left space-y-2.5 text-xs">
+          <div className="flex items-center justify-between">
+            <span className="font-bold uppercase tracking-wider text-plum/65">
+              Your Custom Blueprint
+            </span>
+            <Link
+              href="/onboarding"
+              className="text-plum font-semibold underline hover:text-plum-500"
+            >
+              Edit quiz answers
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 gap-1.5 text-plum/85">
+            <div className="flex items-center gap-2">
+              <Clock className="w-3.5 h-3.5 text-plum shrink-0" />
+              <span>
+                <strong>Schedule:</strong> {planMinutes} mins/day + 5-Min Rescue &amp; Baby-Awake modes
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Heart className="w-3.5 h-3.5 text-blush-400 shrink-0" />
+              <span>
+                <strong>Body Safety:</strong> {bodyFocusLabel}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Utensils className="w-3.5 h-3.5 text-sage-600 shrink-0" />
+              <span>
+                <strong>Kitchen &amp; Groceries:</strong> {regionLabel} ({dietLabel}) • Scales 1×–4×
+              </span>
+            </div>
+          </div>
         </div>
 
         <div className="card-soft shadow-soft-md border-2 border-plum/20 text-left">
@@ -102,16 +179,17 @@ export default function CheckoutPage() {
               ₹499
               <span className="text-base font-sans font-normal text-plum/60">/month</span>
             </p>
-            <p className="text-xs text-plum/60 mt-1">Cancel anytime • No lock-in period</p>
+            <p className="text-xs font-semibold text-sage-700 mt-1">
+              Less than ₹17/day • Pause or cancel in 1 tap from Settings
+            </p>
           </div>
 
           <ul className="space-y-3 text-sm text-plum/85 py-6">
             {[
-              "4-week guided daily workouts with form & breathing cues",
-              "1-tap Energy Check-In (5-Min Rescue & Neck/Back Unwind)",
-              "Weekly family-friendly meal hacks & smart grocery list",
-              "Instant gentle exercise swaps for back & knee comfort",
-              "28-day consistency map, non-scale wins & hydration tracker",
+              "All 28 personalized days with 58 YouTube-guided movement videos",
+              "Instant mood adapts: Baby Awake, 2 AM Wrist Relief & 5-Min Rescue",
+              "Regional home meals + 10-min busy-night swaps + WhatsApp groceries",
+              "60-sec diastasis belly check, hydration tracker & calendar reminder",
             ].map((f) => (
               <li key={f} className="flex items-start gap-2.5">
                 <CheckCircle2 className="w-4 h-4 text-sage-600 shrink-0 mt-0.5" />
@@ -151,7 +229,7 @@ export default function CheckoutPage() {
             className="btn-primary w-full text-base py-3.5"
           >
             <Lock className="w-4 h-4 mr-1" />
-            {paying ? "Redirecting to Stripe..." : "Subscribe for ₹499 & Start →"}
+            {paying ? "Opening Secure Checkout..." : "Unlock My Custom Plan & Start Day 1 →"}
           </button>
 
           {/* Demo simulation shortcut (dev/demo only) */}

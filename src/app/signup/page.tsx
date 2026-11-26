@@ -14,7 +14,7 @@ import { doc, setDoc, getDoc } from "firebase/firestore";
 import { auth, googleProvider, db } from "@/lib/firebase";
 import { useAuth } from "@/context/AuthContext";
 import { IS_DEMO_ENABLED } from "@/lib/appConfig";
-import { ArrowLeft, Sparkles, HeartHandshake, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Sparkles, ShieldCheck, CheckCircle2 } from "lucide-react";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -115,11 +115,26 @@ export default function SignupPage() {
             <span className="font-heading font-bold text-xl text-plum">Fit Mom 20</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-heading font-bold text-plum mt-3">
-            Start Your 20-Minute Plan
+            Build Your 4-Week Plan in 2 Minutes
           </h1>
           <p className="text-plum/70 text-sm mt-1">
-            Gentle, restorative daily movement built for mom life.
+            Personalized around your energy, body comfort, and family kitchen.
           </p>
+
+          <div className="mt-4 grid grid-cols-3 gap-2 text-[11px] font-semibold text-plum/80 bg-peach-50 border border-peach-200 rounded-2xl p-2.5">
+            <span className="flex flex-col items-center gap-0.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-sage-600" />
+              20-Min Plan
+            </span>
+            <span className="flex flex-col items-center gap-0.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-sage-600" />
+              Regional Food
+            </span>
+            <span className="flex flex-col items-center gap-0.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-sage-600" />
+              1-Tap Cancel
+            </span>
+          </div>
         </div>
 
         {/* Demo Mode Quick Access (dev/demo only) */}
@@ -226,12 +241,12 @@ export default function SignupPage() {
               disabled={loading}
               className="btn-primary w-full text-base py-3.5"
             >
-              {loading ? "Creating your account..." : "Continue to 2-Min Quiz →"}
+              {loading ? "Saving..." : "Save & Start My 2-Min Quiz →"}
             </button>
           </form>
 
           <p className="text-xs text-plum/60 text-center mt-4 flex items-center justify-center gap-1.5">
-            <ShieldCheck className="w-3.5 h-3.5 text-sage-600" /> 7-day money-back guarantee • Cancel anytime
+            <ShieldCheck className="w-3.5 h-3.5 text-sage-600" /> Protected by 7-day money-back guarantee • 1-tap cancel
           </p>
         </div>
 

@@ -14,10 +14,12 @@ import {
   Droplets,
   Timer,
   User,
-  Zap,
-  ShoppingBasket,
   Trophy,
   Wind,
+  Baby,
+  Moon,
+  Utensils,
+  X,
 } from "lucide-react";
 
 export default function LandingPage() {
@@ -51,27 +53,39 @@ export default function LandingPage() {
           <div className="lg:col-span-7 text-center lg:text-left space-y-6">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-peach-100 border border-peach-200 text-xs font-semibold uppercase tracking-wider text-plum">
               <Sparkles className="w-3.5 h-3.5 text-plum" />
-              Gentle, Sustainable Daily Movement
+              Built Around Real Motherhood &amp; Broken Sleep
             </div>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-heading font-extrabold text-plum leading-[1.15]">
-              A simple 20-minute daily plan for busy moms to feel fit again
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-heading font-extrabold text-plum leading-[1.13]">
+              Feel strong and energized in 20 calm minutes a day
             </h1>
 
             <p className="text-lg sm:text-xl text-plum/80 max-w-xl mx-auto lg:mx-0 leading-relaxed font-normal">
-              No gym. No equipment. No guilt. Just 20 minutes a day crafted around real mom life.
+              No gym. No equipment. No streak guilt. Postpartum &amp; back-safe YouTube-guided movement, <strong>5-Min &amp; Baby-Awake rescue modes</strong>, plus <strong>regional family meal plans</strong> for busy moms.
             </p>
 
             <div className="pt-2 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
               <Link href="/signup" className="btn-primary w-full sm:w-auto">
-                Start My Plan <ArrowRight className="w-5 h-5 ml-1" />
+                Build My Personalized Plan <ArrowRight className="w-5 h-5 ml-1" />
               </Link>
               <a
                 href="#sample-workout"
                 className="btn-secondary w-full sm:w-auto"
               >
-                Try Free Sample Workout
+                Try Free Day 1 Workout
               </a>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-5 gap-y-2 text-xs font-semibold text-plum/75">
+              <span className="inline-flex items-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5 text-sage-600" /> C-Section &amp; Joint-Safe Options
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5 text-sage-600" /> Family Grocery Lists (1×–4×)
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5 text-sage-600" /> 7-Day Money-Back Guarantee
+              </span>
             </div>
 
             {/* Prominent Doctor Notice near Main CTA */}
@@ -83,7 +97,7 @@ export default function LandingPage() {
             </div>
 
             <p className="text-xs text-plum/60 text-center lg:text-left">
-              7-Day Money-Back Guarantee • Cancel anytime with one tap
+              Less than ₹17/day • Pause or cancel anytime with one tap
             </p>
           </div>
 
@@ -311,27 +325,37 @@ export default function LandingPage() {
           </h2>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {[
             {
               icon: Wind,
-              title: "Guided Step Player",
-              desc: "Gentle countdown ring, safe form tips, pelvic-floor breathing cues, and a soft chime that won't wake baby.",
+              title: "YouTube-Guided Calm Player",
+              desc: "Step-by-step video demos for all 58 moves, pelvic-floor breathing pacer, optional Voice Coach, and soft baby-safe chimes.",
             },
             {
-              icon: Zap,
-              title: "5-Min Rescue & Posture Mode",
-              desc: "Exhausted or neck sore from feeding? One tap swaps today's routine to a 5-min reset or upper-back unwind.",
+              icon: Baby,
+              title: "Baby-Awake & 5-Min Rescue",
+              desc: "Nap cut short after 4 minutes? Switch to standing beside-baby moves or a 5-min reset without breaking your streak.",
             },
             {
-              icon: ShoppingBasket,
-              title: "Meals & Weekly Grocery List",
-              desc: "Quick 10-min prep shortcuts, kid-friendly family tips, and a WhatsApp-ready shopping checklist.",
+              icon: Moon,
+              title: "2 AM Wrist & Feeding Relief",
+              desc: "Targeted guided stretches for sore nursing necks, tight shoulders, and aching wrists (\"Mommy Thumb\") whenever pain hits.",
+            },
+            {
+              icon: Utensils,
+              title: "Regional Kitchens & 4× Scaling",
+              desc: "North Indian, South Indian, All-India Mix & Global Quick meals — scaled 1× to 4× for family with 1-tap WhatsApp grocery lists.",
+            },
+            {
+              icon: ShieldCheck,
+              title: "C-Section & Diastasis Filter",
+              desc: "Automatically removes harsh planks, crunches, and jumping when recovering, plus a 60-second 2-finger belly gap guide.",
             },
             {
               icon: Trophy,
-              title: "Guilt-Free Wins Map",
-              desc: "Track energy boosts, hydration, and non-scale wins across 28 days — zero streaks broken on sick days.",
+              title: "Zero-Guilt Reboot & Calendar",
+              desc: "Save to your phone Home Screen, block your daily 20-min calendar window, and return after missed days with zero guilt.",
             },
           ].map((feat) => {
             const Icon = feat.icon;
@@ -442,35 +466,86 @@ export default function LandingPage() {
             </div>
           </div>
 
+          {/* Contrast Anchoring: Fit Mom 20 vs Saving Random Reels */}
+          <div className="space-y-4">
+            <div className="text-center">
+              <h2 className="text-2xl sm:text-3xl font-heading font-bold text-plum">
+                Why Fit Mom 20 Works When Saved Reels Didn&apos;t
+              </h2>
+              <p className="text-sm text-plum/70 mt-1">
+                Free videos show moves — they don&apos;t adapt to broken nights, recovery scars, or your kitchen.
+              </p>
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div className="bg-white/80 rounded-3xl p-6 border border-peach-200 space-y-3">
+                <span className="text-xs font-bold uppercase tracking-wider text-plum/55 block">
+                  Random Saved Videos &amp; Harsh Apps
+                </span>
+                <ul className="space-y-2.5 text-xs sm:text-sm text-plum/75">
+                  {[
+                    "Push crunches, planks, and jumps that aren't filtered for C-section recovery or belly gap",
+                    "Session falls apart when baby wakes up 5 minutes into your workout",
+                    "Punish broken streaks after sick nights, making moms quit completely",
+                    "Suggest single-person Western meals unrelated to your family stove",
+                  ].map((pt) => (
+                    <li key={pt} className="flex items-start gap-2">
+                      <X className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+                      <span>{pt}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="bg-white rounded-3xl p-6 border-2 border-sage-300 shadow-soft-md space-y-3">
+                <span className="text-xs font-bold uppercase tracking-wider text-sage-700 block">
+                  Fit Mom 20 (~₹17/day System)
+                </span>
+                <ul className="space-y-2.5 text-xs sm:text-sm text-plum/90">
+                  {[
+                    "Filters out harsh core/joint moves automatically from your 2-min quiz",
+                    "Switches in 1 tap to Baby-Awake, 5-Min Rescue, or 2 AM Wrist/Neck Relief",
+                    "Welcomes you back after busy weeks with a zero-guilt reboot",
+                    "Gives North/South Indian & Global meals scaled 1×–4× with WhatsApp grocery lists",
+                  ].map((pt) => (
+                    <li key={pt} className="flex items-start gap-2 font-medium">
+                      <CheckCircle2 className="w-4 h-4 text-sage-600 shrink-0 mt-0.5" />
+                      <span>{pt}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+
           {/* Pricing Card */}
           <div className="max-w-md mx-auto text-center">
             <h2 className="text-3xl font-heading font-bold text-plum mb-2">
-              Simple, Accessible Membership
+              Simple, Transparent Membership
             </h2>
             <p className="text-plum/70 text-sm mb-6">
-              Invest in your well-being with complete peace of mind.
+              Everything you need in one calm place — less than a cup of tea or coffee a day.
             </p>
 
             <div className="card-soft border-2 border-plum/20 relative shadow-soft-md">
               <div className="inline-block bg-peach-100 text-plum text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-4 border border-peach-200">
-                Full All-Access Plan
+                Full All-Access Membership
               </div>
               <p className="text-5xl font-heading font-extrabold text-plum mb-1">
                 ₹499
                 <span className="text-lg font-sans font-normal text-plum/60">/month</span>
               </p>
-              <p className="text-xs text-plum/60 mb-6">
-                Billed monthly • Cancel anytime in 1 click
+              <p className="text-xs font-semibold text-sage-700 mb-6">
+                ~₹17/day • Pause or cancel anytime in 1 tap
               </p>
 
               <ul className="space-y-3 text-left text-sm text-plum/85 mb-8">
                 {[
-                  "Personalized 4-week guided workout plan & breathing cues",
-                  "1-tap Energy Check-In (5-Min Rescue & Posture Unwind)",
-                  "Family-friendly meal hacks + weekly smart grocery list",
-                  "One-tap gentle exercise swaps for joint or back comfort",
-                  "28-day wins calendar, hydration, and optional weight trend",
-                  "Fresh updated movement variety anytime",
+                  "Personalized 4-week plan with 58 YouTube-guided movement videos",
+                  "1-tap Energy Check-In: Baby-Awake, 2 AM Wrist Relief & 5-Min Rescue",
+                  "North/South Indian, All-India & Global meals scaled 1×–4× for family",
+                  "1-tap gentle swaps, 60-sec diastasis belly check & nursing water goal",
+                  "Phone Home-Screen app install + daily Google/Apple calendar reminder",
                 ].map((feat) => (
                   <li key={feat} className="flex items-start gap-2.5">
                     <CheckCircle2 className="w-4 h-4 text-sage-500 shrink-0 mt-0.5" />
@@ -483,12 +558,12 @@ export default function LandingPage() {
               <div className="bg-sage-50 border border-sage-200 rounded-xl p-3 mb-6 text-xs text-plum/80 text-left flex items-start gap-2">
                 <ShieldCheck className="w-4 h-4 text-sage-600 shrink-0 mt-0.5" />
                 <span>
-                  <strong>7-Day Free Trial / Money-Back Guarantee:</strong> Try the first week without worry. If you don&apos;t feel more energized, message us for a prompt refund.
+                  <strong>7-Day Money-Back Guarantee:</strong> Try every workout, recipe, and rescue mode for a full week. Not feeling steadier and calmer? Message us for a prompt refund — no calls required.
                 </span>
               </div>
 
               <Link href="/signup" className="btn-primary w-full">
-                Start My Plan <ArrowRight className="w-4 h-4 ml-1" />
+                Build My Personalized Plan <ArrowRight className="w-4 h-4 ml-1" />
               </Link>
 
               {/* Medical note near button */}
@@ -500,25 +575,33 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ───────── SHORT FAQ (3 QUESTIONS) ───────── */}
+      {/* ───────── SHORT FAQ (OBJECTION HANDLING) ───────── */}
       <section className="px-6 py-20 max-w-3xl mx-auto">
         <h2 className="text-3xl font-heading font-bold text-plum text-center mb-10">
-          Frequently Asked Questions
+          Questions Every Busy Mom Asks First
         </h2>
 
         <div className="space-y-4">
           {[
             {
-              q: "Do I need any gym equipment?",
-              a: "None at all. Every single workout is built for your living room using bodyweight movements. If you happen to own light dumbbells or a resistance band, we offer optional bonus variations, but they are never mandatory.",
+              q: "Why pay ₹499/month when YouTube videos are free?",
+              a: "YouTube gives random clips without knowing whether you had a C-section, knee soreness, or 4 hours of sleep. Fit Mom 20 filters risky moves automatically, pairs 58 curated YouTube tutorials with safe breathing cues, switches in 1 tap to Baby-Awake or 5-Min Rescue when naps end early, and turns regional family meals into a WhatsApp grocery list.",
             },
             {
-              q: "I have a baby under 1 year old or back discomfort. Is this safe?",
-              a: "During our 2-minute quiz, we ask about your baby's age and any back or knee sensitivity. Your plan automatically activates Gentle Mode, swapping high-impact movements for restorative core, pelvic floor, and gentle joint relief. However, please always clear exercise with your doctor first.",
+              q: "I have a baby under 1 year old, C-section recovery, or diastasis/back pain. Is this safe?",
+              a: "In your 2-minute quiz, you can flag baby under 1, C-section delivery, diastasis recti, pelvic heaviness, or back/knee pain. We filter out planks, crunches, and jumping while offering gentle pelvic-floor & heel-slide progressions (plus a 60-sec 2-finger check guide). Always confirm medical clearance with your doctor first.",
             },
             {
-              q: "What if my schedule is chaotic and I miss days?",
-              a: "There is zero guilt and no 'falling behind.' Your plan saves your progress day-by-day. Whenever you return, your next 20 minutes is ready for you. Life happens, and this app was built to support you, not judge you.",
+              q: "What if baby wakes up mid-workout or my week goes completely off track?",
+              a: "Tap 'Baby Awake' for standing beside-baby moves, '5-Min Rescue' on exhausted days, or 'Zero-Guilt Reboot' when returning after missed days. No broken-streak shaming — every minute counts.",
+            },
+            {
+              q: "Do I need to cook separate 'diet food' from my family?",
+              a: "No! Pick North Indian, South Indian, All-India Mix, or Global Quick kitchens, scale recipes and groceries cleanly (1× Me, 2× Partner, or 4× Family), and tap '10m' on rushed evenings.",
+            },
+            {
+              q: "Is cancelling really 1 click without calling anyone?",
+              a: "Yes. Inside Settings, you can pause or cancel membership in a single tap anytime with your progress saved.",
             },
           ].map((item) => (
             <div key={item.q} className="card-soft">
@@ -530,6 +613,19 @@ export default function LandingPage() {
               </p>
             </div>
           ))}
+        </div>
+
+        {/* Calm Closing CTA */}
+        <div className="mt-12 card-soft bg-peach-100/70 border border-peach-200 text-center p-8 space-y-4">
+          <h3 className="font-heading font-bold text-2xl sm:text-3xl text-plum">
+            Give yourself 20 calm minutes tomorrow
+          </h3>
+          <p className="text-sm text-plum/75 max-w-lg mx-auto">
+            Answer a 2-minute quiz to preview your custom workout blueprint, rescue modes, and regional grocery plan.
+          </p>
+          <Link href="/signup" className="btn-primary inline-flex">
+            Build My Personalized Plan <ArrowRight className="w-4 h-4 ml-1" />
+          </Link>
         </div>
       </section>
 

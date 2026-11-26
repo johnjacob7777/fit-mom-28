@@ -734,10 +734,16 @@ export default function OnboardingPage() {
             disabled={!canGoNext() || saving}
             className="btn-primary flex-1 disabled:opacity-40"
           >
-            {saving ? "Creating Your Plan..." : "Generate My Plan →"}
+            {saving ? "Personalizing Your 4-Week Plan..." : "Build My Custom Blueprint →"}
           </button>
         )}
       </div>
+
+      {currentStep === STEPS.length - 1 && (
+        <p className="max-w-xl mx-auto w-full text-center text-[11px] text-plum/65 pt-2">
+          Next: review your custom 4-week plan summary &amp; unlock full access (protected by our 7-day money-back guarantee).
+        </p>
+      )}
     </main>
   );
 }

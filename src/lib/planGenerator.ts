@@ -1698,7 +1698,7 @@ export function getMealGuidance(mealName: string, slot: MealSlot): MealGuidance 
     };
   }
 
-  if (lower.includes("egg") || lower.includes("omelette") || lower.includes("scrambled")) {
+  if (/\beggs?\b/.test(lower) || lower.includes("omelette") || lower.includes("scrambled")) {
     return {
       prepTime: "8–10 min",
       highlight: "High Protein Recovery",
@@ -1890,6 +1890,10 @@ export function getWeeklyGroceryList(
 ): GroceryCategory[] {
   const region = resolveRegionKey(foodRegion);
   const joined = meals.map((m) => `${m.breakfast} ${m.lunch} ${m.dinner} ${m.snack}`).join(" ").toLowerCase();
+  const hasEggs =
+    foodPreference === "eggs_only" ||
+    foodPreference === "non_vegetarian" ||
+    /\beggs?\b/.test(joined);
 
   if (region === "western_global") {
     const produce: string[] = [
@@ -1914,7 +1918,7 @@ export function getWeeklyGroceryList(
 
     const proteins: string[] = ["Plain Greek Yogurt & Cottage Cheese / Feta"];
     if (joined.includes("tofu")) proteins.push("Firm Baked/Plain Tofu");
-    if (foodPreference === "eggs_only" || foodPreference === "non_vegetarian" || joined.includes("egg")) {
+    if (hasEggs) {
       proteins.push("1–2 Dozen Eggs");
     }
     if (foodPreference === "non_vegetarian") {
@@ -1949,7 +1953,7 @@ export function getWeeklyGroceryList(
     if (joined.includes("idiyappam") || joined.includes("appam")) pantry.push("Rice Flour / Appam Mix");
 
     const proteins: string[] = ["Fresh Curd (for curd rice & neer mor)"];
-    if (foodPreference === "eggs_only" || foodPreference === "non_vegetarian" || joined.includes("egg")) {
+    if (hasEggs) {
       proteins.push("1–2 Dozen Eggs");
     }
     if (foodPreference === "non_vegetarian") {
@@ -1989,7 +1993,7 @@ export function getWeeklyGroceryList(
   const proteins: string[] = ["Fresh Curd / Plain Yogurt (for raita & chaas)"];
   if (joined.includes("paneer")) proteins.push("Fresh Paneer");
   if (joined.includes("tofu")) proteins.push("Firm Tofu");
-  if (foodPreference === "eggs_only" || foodPreference === "non_vegetarian" || joined.includes("egg")) {
+  if (hasEggs) {
     proteins.push("1–2 Dozen Eggs");
   }
   if (foodPreference === "non_vegetarian") {

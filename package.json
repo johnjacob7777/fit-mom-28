@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "sync-videos": "node scripts/sync-videos.mjs",
+    "build-handbook": "node scripts/build-handbook-pdf.mjs",
     "predev": "node scripts/sync-videos.mjs",
     "dev": "next dev",
     "prebuild": "node scripts/sync-videos.mjs",

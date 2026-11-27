@@ -127,14 +127,14 @@ function SignupContent() {
           </h1>
           <p className="text-plum/70 text-sm mt-1">
             {isEbookHook
-              ? "Sign up free in 10 seconds to download all 5 chapters & printable tracker PDF."
+              ? "Sign up free in 10 seconds to unlock all 8 parts (36 pages) & printable fridge trackers."
               : "Personalized around your energy, body comfort, and family kitchen."}
           </p>
 
           <div className="mt-4 grid grid-cols-3 gap-2 text-[11px] font-semibold text-plum/80 bg-peach-50 border border-peach-200 rounded-2xl p-2.5">
             <span className="flex flex-col items-center gap-0.5">
               <CheckCircle2 className="w-3.5 h-3.5 text-sage-600" />
-              {isEbookHook ? "6-Page PDF" : "20-Min Plan"}
+              {isEbookHook ? "36-Page PDF" : "20-Min Plan"}
             </span>
             <span className="flex flex-col items-center gap-0.5">
               <CheckCircle2 className="w-3.5 h-3.5 text-sage-600" />
@@ -262,7 +262,7 @@ function SignupContent() {
           <p className="text-xs text-plum/60 text-center mt-4 flex items-center justify-center gap-1.5">
             <ShieldCheck className="w-3.5 h-3.5 text-sage-600" />
             {isEbookHook
-              ? "Instant 6-page PDF unlock • No credit card needed"
+              ? "Instant 36-page PDF unlock • No credit card needed"
               : "Protected by 7-day money-back guarantee • 1-tap cancel"}
           </p>
         </div>

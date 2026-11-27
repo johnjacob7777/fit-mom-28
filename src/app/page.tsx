@@ -100,7 +100,7 @@ export default function LandingPage() {
             <p className="text-xs text-plum/60 text-center lg:text-left">
               Less than ₹17/day • Pause or cancel anytime with one tap •{" "}
               <Link href="/handbook" className="font-bold text-plum underline hover:text-plum-500">
-                Get our Free 7-Day eBook (PDF) →
+                Get our Free 36-Page Mom eBook (PDF) →
               </Link>
             </p>
           </div>
@@ -323,13 +323,13 @@ export default function LandingPage() {
         <div className="card-soft border-2 border-peach-200 bg-gradient-to-br from-peach-50/80 via-white to-blush-50/60 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="space-y-2.5 text-center md:text-left">
             <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider bg-plum text-white px-3 py-1 rounded-full">
-              <BookOpen className="w-3.5 h-3.5" /> Free Bonus Included (Or Grab Free Now)
+              <BookOpen className="w-3.5 h-3.5" /> Free 36-Page Edition (Grab Free Now)
             </span>
             <h2 className="text-2xl sm:text-3xl font-heading font-bold text-plum">
               The Exhausted Mom&apos;s 7-Day Comeback Handbook
             </h2>
             <p className="text-sm text-plum/75 max-w-xl leading-relaxed">
-              Get our printable 5-chapter companion eBook free: the <strong>3-Speed Broken-Sleep Rule</strong>, <strong>60-Second Diastasis Belly Check</strong>, <strong>&ldquo;Mommy Thumb&rdquo; forearm trick</strong>, <strong>one-stove family meal bases</strong>, and a fridge tracker.
+              Get our complete <strong>36-page printable workbook</strong> free: the <strong>3-Speed Broken-Sleep Rule</strong>, <strong>60s Diastasis &amp; C-Section Diagrams</strong>, <strong>2 AM &ldquo;Mommy Thumb&rdquo; Scoop Trick</strong>, <strong>4 regional 7-day menus &amp; shopping lists</strong>, evening sleep downshift, and fridge trackers.
             </p>
           </div>
 
@@ -338,7 +338,7 @@ export default function LandingPage() {
               href="/handbook#unlock-ebook"
               className="btn-primary py-3 px-5 text-xs sm:text-sm"
             >
-              <BookOpen className="w-4 h-4" /> Get Free eBook PDF <ArrowRight className="w-4 h-4" />
+              <BookOpen className="w-4 h-4" /> Get Free 36-Page eBook <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
               href="/handbook"
@@ -582,7 +582,7 @@ export default function LandingPage() {
                   "North/South Indian, All-India & Global meals scaled 1×–4× for family",
                   "1-tap gentle swaps, 60-sec diastasis belly check & nursing water goal",
                   "Phone Home-Screen app install + daily Google/Apple calendar reminder",
-                  "BONUS FREE eBook: Exhausted Mom's 7-Day Comeback Handbook (PDF)",
+                  "BONUS FREE eBook: 36-Page Exhausted Mom's Comeback Handbook (PDF)",
                 ].map((feat) => (
                   <li key={feat} className="flex items-start gap-2.5">
                     <CheckCircle2 className="w-4 h-4 text-sage-500 shrink-0 mt-0.5" />

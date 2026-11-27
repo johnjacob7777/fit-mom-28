@@ -25,7 +25,7 @@ export function HandbookCoverActions() {
           download="Fit-Mom-20-Comeback-Handbook.pdf"
           className="btn-primary py-3 px-6 text-sm"
         >
-          <Download className="w-4 h-4" /> Download Full 6-Page PDF
+          <Download className="w-4 h-4" /> Download Full 36-Page PDF
         </a>
         <Link
           href={userData?.isPaid ? "/dashboard" : "/onboarding"}
@@ -43,7 +43,7 @@ export function HandbookCoverActions() {
   return (
     <div className="no-print pt-2 flex flex-wrap items-center justify-center gap-3">
       <a href="#unlock-ebook" className="btn-primary py-3 px-6 text-sm">
-        <Lock className="w-4 h-4" /> Unlock Chapters 2–5 &amp; Free PDF
+        <Lock className="w-4 h-4" /> Unlock Full 36-Page Manual &amp; PDF
       </a>
       <a href="#chapter-1" className="btn-secondary py-3 px-5 text-sm">
         Read Chapter 1 Free Below

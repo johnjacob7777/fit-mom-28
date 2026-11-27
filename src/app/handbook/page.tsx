@@ -17,9 +17,9 @@ import {
 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Free eBook: The Exhausted Mom's 7-Day Comeback Handbook | Fit Mom 20",
+  title: "Free 36-Page eBook: The Exhausted Mom's 7-Day Comeback Handbook | Fit Mom 20",
   description:
-    "Free printable & PDF companion guide for busy moms: 3-speed workouts for broken sleep, C-section & diastasis belly check, 2 AM wrist relief, and one-stove regional family meal formulas.",
+    "Free 36-page printable & PDF companion workbook for busy moms: 3-speed broken-sleep workouts, 60s diastasis & C-section timeline, 2 AM wrist/neck diagrams, 4 regional 7-day menus + grocery lists, sleep reset, and fridge trackers.",
 };
 
 export default function HandbookPage() {
@@ -33,7 +33,7 @@ export default function HandbookPage() {
         {/* ═══════════════ COVER / INTRO ═══════════════ */}
         <section className="card-soft border-2 border-peach-200 bg-gradient-to-br from-white via-peach-50/50 to-blush-50/40 p-8 sm:p-12 text-center space-y-6 print-avoid-break">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-peach-100 border border-peach-200 text-xs font-bold uppercase tracking-wider text-plum">
-            <BookOpen className="w-3.5 h-3.5" /> Free Companion eBook • Fit Mom 20
+            <BookOpen className="w-3.5 h-3.5" /> Free 36-Page Complete Edition • Fit Mom 20
           </div>
 
           <div className="space-y-3 max-w-2xl mx-auto">
@@ -41,21 +41,23 @@ export default function HandbookPage() {
               The Exhausted Mom&apos;s 7-Day Comeback Handbook
             </h1>
             <p className="text-base sm:text-lg text-plum/80 leading-relaxed">
-              Feel strong, supported, and less stiff in 20 calm minutes a day — without gym commutes, broken-streak guilt, or cooking separate &ldquo;diet&rdquo; meals.
+              Feel strong, supported, and less stiff in 20 calm minutes a day — without gym commutes, broken-streak guilt, or cooking separate &ldquo;diet&rdquo; meals. Now expanded into a complete <strong>36-page interactive manual &amp; printable workbook</strong>.
             </p>
           </div>
 
-          <div className="max-w-xl mx-auto bg-white/90 rounded-2xl border border-peach-200 p-5 text-left space-y-2.5 text-xs sm:text-sm">
+          <div className="max-w-2xl mx-auto bg-white/90 rounded-2xl border border-peach-200 p-5 text-left space-y-2.5 text-xs sm:text-sm">
             <p className="font-bold uppercase tracking-wider text-[11px] text-plum/60">
-              Inside This Printable Guide:
+              Inside Your 36-Page Workbook &amp; PDF Edition (8 Complete Parts):
             </p>
             <div className="grid sm:grid-cols-2 gap-2 text-plum/85">
-              <span>• Ch 1: The 3-Speed Broken-Sleep Rule</span>
-              <span>• Ch 2: 60s Diastasis &amp; C-Section Check</span>
-              <span>• Ch 3: 2 AM &ldquo;Mommy Thumb&rdquo; Wrist Relief</span>
-              <span>• Ch 4: One-Stove Family Meal Formulas</span>
-              <span>• Ch 5: 7-Day Printable Fridge Tracker</span>
-              <span>• Works for All-India &amp; Global Kitchens</span>
+              <span>• Part 1 (pp. 3–7): 3-Speed Rule, 4-6 Breath &amp; 5-Min Rescue</span>
+              <span>• Part 2 (pp. 8–12): 2-Finger Belly Diagram, C-Section Timeline &amp; Swaps</span>
+              <span>• Part 3 (pp. 13–15): 2 AM Wrist Scoop, Feeding Neck &amp; Ergonomics</span>
+              <span>• Part 4 (pp. 16–17): Full 7-Day Workouts &amp; Missed-Days Reboot</span>
+              <span>• Part 5 (pp. 18–20): One-Stove Pot, Hydration &amp; 15-Min Prep</span>
+              <span>• Part 6 (pp. 21–27): All 4 Regional 7-Day Menus &amp; Shopping Lists</span>
+              <span>• Part 7 (pp. 28–29): 6-Min Sleep Downshift &amp; 3 PM Cravings Fix</span>
+              <span>• Part 8 (pp. 30–36): Tear-Out Fridge Trackers, Journal &amp; Posters</span>
             </div>
           </div>
 
@@ -170,6 +172,12 @@ export default function HandbookPage() {
                 </ul>
               </div>
             </div>
+
+            <div className="bg-cream-50 border border-peach-200 rounded-2xl p-4 text-xs text-plum/85 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <span>
+                <strong>Pages 8–12 in the 36-Page PDF</strong> also include the illustrated <strong>2-Finger Belly Check Diagram</strong>, the <strong>Weeks 1–12+ C-Section Scar Timeline</strong>, and <strong>12 Illustrated Safe Exercise Reference Cards</strong>.
+              </span>
+            </div>
           </section>
 
           {/* CHAPTER 3 */}
@@ -281,7 +289,43 @@ export default function HandbookPage() {
             </div>
           </section>
 
-          {/* CHAPTER 5 (PRINTABLE FRIDGE TRACKER) */}
+          {/* CHAPTER 5 / PART 7–8 */}
+          <section className="card-soft space-y-5 print-page-break print-avoid-break">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-plum/60">
+              <Moon className="w-4 h-4 text-plum" /> Parts 4, 7 &amp; 8 in the 36-Page Workbook PDF
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-heading font-bold text-plum">
+              Complete 7-Day Schedule, 6-Min Sleep Downshift &amp; 3 PM Craving Fix
+            </h2>
+            <div className="grid sm:grid-cols-3 gap-4 text-xs sm:text-sm">
+              <div className="bg-cream-50 border border-peach-200 rounded-2xl p-4 space-y-1.5">
+                <h3 className="font-heading font-bold text-base text-plum">
+                  Full 7-Day Workout Flow (pp. 16–17)
+                </h3>
+                <p className="text-plum/75">
+                  Day-by-day Warmup, Main Flow, Cooldown, Baby-Awake Pivot, plus the <em>&ldquo;Missed 4 Days&rdquo; Zero-Guilt Reboot</em>.
+                </p>
+              </div>
+              <div className="bg-cream-50 border border-peach-200 rounded-2xl p-4 space-y-1.5">
+                <h3 className="font-heading font-bold text-base text-plum">
+                  Evening Downshift &amp; 3 PM Crash (pp. 28–29)
+                </h3>
+                <p className="text-plum/75">
+                  6-minute bedtime legs-up wind-down for tired-but-wired nights, plus 6 one-handed Protein + Fiber craving upgrades.
+                </p>
+              </div>
+              <div className="bg-sage-50 border border-sage-200 rounded-2xl p-4 space-y-1.5">
+                <h3 className="font-heading font-bold text-base text-plum">
+                  Tear-Out Posters &amp; 4 Shopping Lists (pp. 21–36)
+                </h3>
+                <p className="text-plum/75">
+                  Full 7-day menus &amp; categorized checklists for all 4 regions, 10-min emergency dinners, and cribside 2 AM stretch posters.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* CHAPTER 6 / PRINTABLE FRIDGE TRACKER */}
           <section className="card-soft border-2 border-plum/15 space-y-5 print-page-break print-avoid-break">
             <div className="flex items-center justify-between flex-wrap gap-2">
               <div>

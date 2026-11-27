@@ -101,10 +101,10 @@ export default function HandbookGate({ children }: { children: ReactNode }) {
           <div className="space-y-1">
             <p className="font-heading font-bold text-lg text-plum flex items-center gap-2">
               <CheckCircle2 className="w-5 h-5 text-sage-600 shrink-0" />
-              Your Free eBook &amp; PDF Edition Is Unlocked!
+              Your Free 36-Page eBook &amp; Workbook Is Unlocked!
             </p>
             <p className="text-xs text-plum/75">
-              Download your 6-page printable PDF below or keep reading Chapters 2–5 anytime.
+              Download your full 36-page illustrated PDF workbook (with 4 regional shopping lists, postpartum diagrams &amp; printable posters) or read below.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2 shrink-0">
@@ -139,25 +139,25 @@ export default function HandbookGate({ children }: { children: ReactNode }) {
             <Lock className="w-3 h-3" /> Free Instant Unlock
           </span>
           <h2 className="text-2xl sm:text-3xl font-heading font-bold text-plum">
-            Unlock Chapters 2–5 &amp; Download the 6-Page PDF Free
+            Unlock All 8 Parts &amp; Download the 36-Page PDF Free
           </h2>
           <p className="text-xs sm:text-sm text-plum/75">
-            Create your free Fit Mom 20 login in 10 seconds to save your copy and get the printable fridge tracker immediately.
+            Create your free Fit Mom 20 login in 10 seconds to save your complete 36-page workbook, 4 regional menus, and printable fridge trackers.
           </p>
         </div>
 
         <div className="grid md:grid-cols-12 gap-6 items-start">
-          {/* Left: What's Inside Chapters 2–5 */}
+          {/* Left: What's Inside the 36-Page Edition */}
           <div className="md:col-span-5 bg-white rounded-2xl border border-peach-200 p-5 space-y-3 text-xs">
             <p className="font-bold uppercase tracking-wider text-plum/60 text-[11px]">
-              Unlocks Immediately Below:
+              Unlocks Immediately Inside (36 Pages):
             </p>
             <ul className="space-y-2.5 text-plum/85">
               {[
-                "Ch 2: 60-Second 2-Finger Belly Check & C-Section Rules",
-                "Ch 3: 2 AM \"Mommy Thumb\" Forearm Lift & Wrist Stretches",
-                "Ch 4: One-Stove North/South Indian & Global Family Meals",
-                "Ch 5: Printable 7-Day Zero-Guilt Fridge Tracker (PDF)",
+                "Part 2 (pp. 8–12): 60s 2-Finger Belly Check diagram, C-Section timeline & 12 safe move cards",
+                "Part 3 (pp. 13–15): \"Mommy Thumb\" Scoop Lift diagram, feeding neck unwind & ergonomics",
+                "Part 4–6 (pp. 16–27): Full 7-day workouts + North/South Indian, All-India & Global menus + shopping lists",
+                "Part 7–8 (pp. 28–36): 6-min sleep downshift, 3 PM craving swaps & printable fridge trackers/posters",
               ].map((pt) => (
                 <li key={pt} className="flex items-start gap-2">
                   <CheckCircle2 className="w-4 h-4 text-sage-600 shrink-0 mt-0.5" />
@@ -260,24 +260,24 @@ export default function HandbookGate({ children }: { children: ReactNode }) {
         </div>
       </div>
 
-      {/* Teaser Preview Cards for Locked Chapters 2–5 */}
+      {/* Teaser Preview Cards for Locked Parts 2–8 */}
       <div className="grid sm:grid-cols-2 gap-4 opacity-80">
         {[
           {
-            ch: "Chapter 2",
-            title: "60-Second 2-Finger Belly Check & C-Section Scar Rules",
+            ch: "Part 2 • Pages 8–12",
+            title: "60s 2-Finger Belly Diagram, C-Section Roadmap & 12 Safe Moves",
           },
           {
-            ch: "Chapter 3",
-            title: "Easing \"Mommy Thumb\", Nursing Neck & Heavy Legs",
+            ch: "Part 3–4 • Pages 13–17",
+            title: "2 AM \"Mommy Thumb\" Wrist Scoop, Neck Unwind & 7-Day Home Flow",
           },
           {
-            ch: "Chapter 4",
-            title: "One-Stove Family Meals (North Indian · South Indian · Global)",
+            ch: "Part 5–6 • Pages 18–27",
+            title: "4 Regional 7-Day Menus, Grocery Checklists & 10-Min Dinners",
           },
           {
-            ch: "Chapter 5",
-            title: "Printable 7-Day Zero-Guilt Fridge Tracker (PDF)",
+            ch: "Part 7–8 • Pages 28–36",
+            title: "Evening Sleep Reset, 3 PM Cravings Fix & Printable Trackers",
           },
         ].map((item) => (
           <a

@@ -204,10 +204,10 @@ export default function CheckoutPage() {
             <BookOpen className="w-4 h-4 text-plum shrink-0 mt-0.5" />
             <div>
               <strong className="block">
-                Included Free Bonus eBook: 7-Day Comeback Handbook
+                Included Free Bonus eBook: 36-Page Comeback Handbook
               </strong>
               <span className="text-plum/75">
-                Instant PDF &amp; printable fridge tracker bundled inside your dashboard.
+                Complete 36-page workbook PDF, 4 regional shopping lists &amp; fridge trackers bundled inside.
               </span>
             </div>
           </div>

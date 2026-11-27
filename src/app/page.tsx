@@ -21,7 +21,6 @@ import {
   Utensils,
   X,
   BookOpen,
-  Download,
 } from "lucide-react";
 
 export default function LandingPage() {
@@ -99,7 +98,10 @@ export default function LandingPage() {
             </div>
 
             <p className="text-xs text-plum/60 text-center lg:text-left">
-              Less than ₹17/day • Pause or cancel anytime with one tap
+              Less than ₹17/day • Pause or cancel anytime with one tap •{" "}
+              <Link href="/handbook" className="font-bold text-plum underline hover:text-plum-500">
+                Get our Free 7-Day eBook (PDF) →
+              </Link>
             </p>
           </div>
 
@@ -332,18 +334,17 @@ export default function LandingPage() {
           </div>
 
           <div className="flex flex-col sm:flex-row md:flex-col gap-2.5 shrink-0 w-full md:w-auto">
-            <a
-              href="/fit-mom-20-comeback-handbook.pdf"
-              download="Fit-Mom-20-Comeback-Handbook.pdf"
+            <Link
+              href="/handbook#unlock-ebook"
               className="btn-primary py-3 px-5 text-xs sm:text-sm"
             >
-              <Download className="w-4 h-4" /> Download Free PDF
-            </a>
+              <BookOpen className="w-4 h-4" /> Get Free eBook PDF <ArrowRight className="w-4 h-4" />
+            </Link>
             <Link
               href="/handbook"
               className="btn-secondary py-2.5 px-5 text-xs sm:text-sm text-center"
             >
-              <BookOpen className="w-4 h-4" /> Read Online Free
+              Read Chapter 1 Free
             </Link>
           </div>
         </div>

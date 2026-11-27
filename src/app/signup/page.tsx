@@ -2,8 +2,8 @@
 // =============================================================
 // SIGNUP PAGE — Clean theme with deep plum, cream & peach
 // =============================================================
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   createUserWithEmailAndPassword,
@@ -16,8 +16,10 @@ import { useAuth } from "@/context/AuthContext";
 import { IS_DEMO_ENABLED } from "@/lib/appConfig";
 import { ArrowLeft, Sparkles, ShieldCheck, CheckCircle2 } from "lucide-react";
 
-export default function SignupPage() {
+function SignupContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isEbookHook = searchParams.get("gift") === "ebook";
   const { startDemoSession } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -28,7 +30,7 @@ export default function SignupPage() {
   // Quick launch in Demo Mode
   const handleStartDemo = () => {
     startDemoSession(name || "Mama", email || "mom@example.com");
-    router.push("/onboarding");
+    router.push(isEbookHook ? "/handbook" : "/onboarding");
   };
 
   const createUserDoc = async (uid: string, userEmail: string, displayName: string) => {
@@ -40,6 +42,8 @@ export default function SignupPage() {
         displayName: displayName || "",
         quizCompleted: false,
         isPaid: false,
+        leadSource: isEbookHook ? "free_ebook" : "direct_signup",
+        ebookUnlocked: true,
         createdAt: new Date().toISOString(),
         progress: {
           workoutsCompleted: {},
@@ -59,7 +63,7 @@ export default function SignupPage() {
       const result = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(result.user, { displayName: name });
       await createUserDoc(result.user.uid, email, name);
-      router.push("/onboarding");
+      router.push(isEbookHook ? "/handbook" : "/onboarding");
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Something went wrong";
       setError(message.replace("Firebase: ", ""));
@@ -82,7 +86,9 @@ export default function SignupPage() {
       const docRef = doc(db, "users", result.user.uid);
       const docSnap = await getDoc(docRef);
       const data = docSnap.data();
-      if (data?.isPaid) {
+      if (isEbookHook && !data?.isPaid) {
+        router.push("/handbook");
+      } else if (data?.isPaid) {
         router.push("/dashboard");
       } else if (data?.quizCompleted) {
         router.push("/checkout");
@@ -115,24 +121,28 @@ export default function SignupPage() {
             <span className="font-heading font-bold text-xl text-plum">Fit Mom 20</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-heading font-bold text-plum mt-3">
-            Build Your 4-Week Plan in 2 Minutes
+            {isEbookHook
+              ? "Unlock Your Free 7-Day Comeback eBook"
+              : "Build Your 4-Week Plan in 2 Minutes"}
           </h1>
           <p className="text-plum/70 text-sm mt-1">
-            Personalized around your energy, body comfort, and family kitchen.
+            {isEbookHook
+              ? "Sign up free in 10 seconds to download all 5 chapters & printable tracker PDF."
+              : "Personalized around your energy, body comfort, and family kitchen."}
           </p>
 
           <div className="mt-4 grid grid-cols-3 gap-2 text-[11px] font-semibold text-plum/80 bg-peach-50 border border-peach-200 rounded-2xl p-2.5">
             <span className="flex flex-col items-center gap-0.5">
               <CheckCircle2 className="w-3.5 h-3.5 text-sage-600" />
-              20-Min Plan
+              {isEbookHook ? "6-Page PDF" : "20-Min Plan"}
             </span>
             <span className="flex flex-col items-center gap-0.5">
               <CheckCircle2 className="w-3.5 h-3.5 text-sage-600" />
-              Regional Food
+              {isEbookHook ? "Fridge Tracker" : "Regional Food"}
             </span>
             <span className="flex flex-col items-center gap-0.5">
               <CheckCircle2 className="w-3.5 h-3.5 text-sage-600" />
-              1-Tap Cancel
+              {isEbookHook ? "100% Free" : "1-Tap Cancel"}
             </span>
           </div>
         </div>
@@ -241,12 +251,19 @@ export default function SignupPage() {
               disabled={loading}
               className="btn-primary w-full text-base py-3.5"
             >
-              {loading ? "Saving..." : "Save & Start My 2-Min Quiz →"}
+              {loading
+                ? "Saving..."
+                : isEbookHook
+                ? "Unlock Free eBook PDF →"
+                : "Save & Start My 2-Min Quiz →"}
             </button>
           </form>
 
           <p className="text-xs text-plum/60 text-center mt-4 flex items-center justify-center gap-1.5">
-            <ShieldCheck className="w-3.5 h-3.5 text-sage-600" /> Protected by 7-day money-back guarantee • 1-tap cancel
+            <ShieldCheck className="w-3.5 h-3.5 text-sage-600" />
+            {isEbookHook
+              ? "Instant 6-page PDF unlock • No credit card needed"
+              : "Protected by 7-day money-back guarantee • 1-tap cancel"}
           </p>
         </div>
 
@@ -259,5 +276,19 @@ export default function SignupPage() {
         </p>
       </div>
     </main>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-cream flex items-center justify-center">
+          <div className="w-10 h-10 border-4 border-peach-200 border-t-plum rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <SignupContent />
+    </Suspense>
   );
 }

@@ -45,13 +45,21 @@ export default function HandbookPage() {
             </p>
           </div>
 
+          <div className="max-w-2xl mx-auto rounded-2xl overflow-hidden border border-peach-200 shadow-xs">
+            <img
+              src="/images/handbook/cover-hero.jpg"
+              alt="Mother gently stretching her shoulders on a sunlit living-room rug"
+              className="w-full h-56 sm:h-72 object-cover object-[center_22%]"
+            />
+          </div>
+
           <div className="max-w-2xl mx-auto bg-white/90 rounded-2xl border border-peach-200 p-5 text-left space-y-2.5 text-xs sm:text-sm">
             <p className="font-bold uppercase tracking-wider text-[11px] text-plum/60">
               Inside Your 36-Page Workbook &amp; PDF Edition (8 Complete Parts):
             </p>
             <div className="grid sm:grid-cols-2 gap-2 text-plum/85">
               <span>• Part 1 (pp. 3–7): 3-Speed Rule, 4-6 Breath &amp; 5-Min Rescue</span>
-              <span>• Part 2 (pp. 8–12): 2-Finger Belly Diagram, C-Section Timeline &amp; Swaps</span>
+              <span>• Part 2 (pp. 8–12): 2-Finger Belly Photo Guide, C-Section Timeline &amp; Swaps</span>
               <span>• Part 3 (pp. 13–15): 2 AM Wrist Scoop, Feeding Neck &amp; Ergonomics</span>
               <span>• Part 4 (pp. 16–17): Full 7-Day Workouts &amp; Missed-Days Reboot</span>
               <span>• Part 5 (pp. 18–20): One-Stove Pot, Hydration &amp; 15-Min Prep</span>
@@ -136,16 +144,25 @@ export default function HandbookPage() {
               Before rushing into planks or crunches after pregnancy or C-section surgery, check how your deep midline connective tissue (linea alba) responds to gentle tension.
             </p>
 
-            <div className="bg-sage-50 border border-sage-200 rounded-2xl p-5 space-y-2.5 text-xs sm:text-sm">
-              <h3 className="font-heading font-bold text-lg text-plum">
-                How to Do the 2-Finger Check (1 Minute)
-              </h3>
-              <ol className="list-decimal pl-5 space-y-1.5 text-plum/85">
-                <li>Lie comfortably on your back with knees bent and feet flat on a mat.</li>
-                <li>Rest 2 fingers horizontally right above your belly button, pointing slightly downward.</li>
-                <li>Exhale softly, relax your belly, and lift only your head and shoulders 1 inch off the floor.</li>
-                <li>Feel whether your fingertips sink into a wide soft gap (2+ finger widths) or notice a peaked &ldquo;doming&rdquo; ridge down the center.</li>
-              </ol>
+            <div className="grid md:grid-cols-2 gap-4 items-center bg-sage-50 border border-sage-200 rounded-2xl p-5 text-xs sm:text-sm">
+              <div className="space-y-2.5">
+                <h3 className="font-heading font-bold text-lg text-plum">
+                  How to Do the 2-Finger Check (1 Minute)
+                </h3>
+                <ol className="list-decimal pl-5 space-y-1.5 text-plum/85">
+                  <li>Lie comfortably on your back with knees bent and feet flat on a mat.</li>
+                  <li>Rest 2 fingers horizontally right above your belly button, pointing slightly downward.</li>
+                  <li>Exhale softly, relax your belly, and lift only your head and shoulders 1 inch off the floor.</li>
+                  <li>Feel whether your fingertips sink into a wide soft gap (2+ finger widths) or notice a peaked &ldquo;doming&rdquo; ridge down the center.</li>
+                </ol>
+              </div>
+              <div className="rounded-xl overflow-hidden border border-sage-200 bg-white">
+                <img
+                  src="/images/handbook/belly-check.jpg"
+                  alt="Postnatal 2-finger diastasis belly check posture on a cushioned mat"
+                  className="w-full h-52 object-cover"
+                />
+              </div>
             </div>
 
             <div className="grid sm:grid-cols-2 gap-4 text-xs sm:text-sm">
@@ -175,7 +192,7 @@ export default function HandbookPage() {
 
             <div className="bg-cream-50 border border-peach-200 rounded-2xl p-4 text-xs text-plum/85 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <span>
-                <strong>Pages 8–12 in the 36-Page PDF</strong> also include the illustrated <strong>2-Finger Belly Check Diagram</strong>, the <strong>Weeks 1–12+ C-Section Scar Timeline</strong>, and <strong>12 Illustrated Safe Exercise Reference Cards</strong>.
+                <strong>Pages 8–12 in the 36-Page PDF</strong> also include the illustrated <strong>2-Finger Belly Check Photo Guide</strong>, the <strong>Weeks 1–12+ C-Section Scar Timeline</strong>, and <strong>12 Safe Exercise Reference Cards</strong>.
               </span>
             </div>
           </section>
@@ -188,6 +205,31 @@ export default function HandbookPage() {
             <h2 className="text-2xl sm:text-3xl font-heading font-bold text-plum">
               Easing &ldquo;Mommy Thumb&rdquo;, Nursing Neck &amp; Heavy Legs
             </h2>
+
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div className="bg-white rounded-2xl border border-peach-200 overflow-hidden">
+                <img
+                  src="/images/handbook/wrist-scoop.jpg"
+                  alt="Safe neutral-wrist forearm scoop lift under baby"
+                  className="w-full h-44 object-cover"
+                />
+                <div className="p-3.5 text-xs">
+                  <p className="font-bold text-plum">Safe Forearm Scoop Lift</p>
+                  <p className="text-plum/75 mt-0.5">Keep wrists straight and thumbs relaxed flat instead of hooking under armpits.</p>
+                </div>
+              </div>
+              <div className="bg-white rounded-2xl border border-peach-200 overflow-hidden">
+                <img
+                  src="/images/handbook/nursing-posture.jpg"
+                  alt="Upright nursing pillow posture supporting lower back and neck"
+                  className="w-full h-44 object-cover object-[center_20%]"
+                />
+                <div className="p-3.5 text-xs">
+                  <p className="font-bold text-plum">Upright Pillow-Stack Nursing Setup</p>
+                  <p className="text-plum/75 mt-0.5">Bring baby up to chest level with cushions so chin stays neutral and shoulders drop.</p>
+                </div>
+              </div>
+            </div>
 
             <div className="bg-blush-50/60 border border-blush-200 rounded-2xl p-5 space-y-2 text-xs sm:text-sm">
               <h3 className="font-heading font-bold text-lg text-plum">
@@ -237,6 +279,14 @@ export default function HandbookPage() {
             <p className="text-sm text-plum/80 leading-relaxed">
               Diets fail moms because cooking two meals doubles dishes and stress. Use the <strong>&ldquo;Kid-First Extraction&rdquo; rule</strong>: cook one mild, iron- and protein-rich family pot, scoop baby/kid portions cleanly first, then top your bowl with extra crunchy veg, tadka, or lemon.
             </p>
+
+            <div className="rounded-2xl overflow-hidden border border-peach-200">
+              <img
+                src="/images/handbook/one-stove-meals.jpg"
+                alt="One-stove family meal spread with dal tadka, phulka rotis, fresh cucumber salad and curd"
+                className="w-full h-48 sm:h-60 object-cover"
+              />
+            </div>
 
             <div className="grid sm:grid-cols-3 gap-3.5 text-xs">
               <div className="bg-cream-50 border border-peach-200 rounded-2xl p-4 space-y-2">

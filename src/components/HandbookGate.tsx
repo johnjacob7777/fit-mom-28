@@ -104,7 +104,7 @@ export default function HandbookGate({ children }: { children: ReactNode }) {
               Your Free 36-Page eBook &amp; Workbook Is Unlocked!
             </p>
             <p className="text-xs text-plum/75">
-              Download your full 36-page illustrated PDF workbook (with 4 regional shopping lists, postpartum diagrams &amp; printable posters) or read below.
+              Download your full 36-page illustrated PDF workbook (with 4 regional shopping lists, step-by-step photos &amp; printable posters) or read below.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2 shrink-0">
@@ -154,8 +154,8 @@ export default function HandbookGate({ children }: { children: ReactNode }) {
             </p>
             <ul className="space-y-2.5 text-plum/85">
               {[
-                "Part 2 (pp. 8–12): 60s 2-Finger Belly Check diagram, C-Section timeline & 12 safe move cards",
-                "Part 3 (pp. 13–15): \"Mommy Thumb\" Scoop Lift diagram, feeding neck unwind & ergonomics",
+                "Part 2 (pp. 8–12): 60s 2-Finger Belly Check photo guide, C-Section timeline & 12 safe moves",
+                "Part 3 (pp. 13–15): \"Mommy Thumb\" Scoop Lift photo guide, feeding neck unwind & ergonomics",
                 "Part 4–6 (pp. 16–27): Full 7-day workouts + North/South Indian, All-India & Global menus + shopping lists",
                 "Part 7–8 (pp. 28–36): 6-min sleep downshift, 3 PM craving swaps & printable fridge trackers/posters",
               ].map((pt) => (
@@ -265,7 +265,7 @@ export default function HandbookGate({ children }: { children: ReactNode }) {
         {[
           {
             ch: "Part 2 • Pages 8–12",
-            title: "60s 2-Finger Belly Diagram, C-Section Roadmap & 12 Safe Moves",
+            title: "60s 2-Finger Belly Photo Guide, C-Section Roadmap & 12 Safe Moves",
           },
           {
             ch: "Part 3–4 • Pages 13–17",

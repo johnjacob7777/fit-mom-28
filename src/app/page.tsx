@@ -329,7 +329,7 @@ export default function LandingPage() {
               The Exhausted Mom&apos;s 7-Day Comeback Handbook
             </h2>
             <p className="text-sm text-plum/75 max-w-xl leading-relaxed">
-              Get our complete <strong>36-page printable workbook</strong> free: the <strong>3-Speed Broken-Sleep Rule</strong>, <strong>60s Diastasis &amp; C-Section Diagrams</strong>, <strong>2 AM &ldquo;Mommy Thumb&rdquo; Scoop Trick</strong>, <strong>4 regional 7-day menus &amp; shopping lists</strong>, evening sleep downshift, and fridge trackers.
+              Get our complete <strong>36-page printable workbook</strong> free: the <strong>3-Speed Broken-Sleep Rule</strong>, <strong>60s Diastasis &amp; C-Section Photo Guide</strong>, <strong>2 AM &ldquo;Mommy Thumb&rdquo; Scoop Photos</strong>, <strong>4 regional 7-day menus &amp; shopping lists</strong>, evening sleep downshift, and fridge trackers.
             </p>
           </div>
 
